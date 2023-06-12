@@ -8,6 +8,8 @@ import { AuthGuard } from './auth/auth.guard';
 import { MypostsComponent } from './posts/myposts/myposts.component';
 import { CreateProfileComponent } from './profile/create-profile/create-profile.component';
 import { ViewProfileComponent } from './profile/view-profile/view-profile.component';
+import { ResetPasswordComponent } from './auth/reset-password/reset-password.component';
+import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
 
 
 
@@ -16,7 +18,11 @@ const routes: Routes = [
  
   { path: 'myposts', component: MypostsComponent ,canActivate: [AuthGuard]},
   { path: 'create', component: CreatePostComponent ,canActivate: [AuthGuard]},
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
+  { path:'Forgot Password',component:ForgotPasswordComponent},
+  { path: 'reset-password', component: ResetPasswordComponent },
+   { path: 'reset-password/:token', component: ResetPasswordComponent },
   { path: 'myposts/:postId', component: PostDetailComponent ,canActivate: [AuthGuard]},
   { path: 'myposts/edit/:postId', component: CreatePostComponent, canActivate: [AuthGuard] },
   { path: 'profile', component: CreateProfileComponent,canActivate: [AuthGuard] },

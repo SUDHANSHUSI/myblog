@@ -20,7 +20,8 @@ import { CreateProfileComponent } from './profile/create-profile/create-profile.
 import { ViewProfileComponent } from './profile/view-profile/view-profile.component';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 import { FooterComponent } from './footer/footer.component';
-
+import { ResetPasswordComponent } from './auth/reset-password/reset-password.component';
+import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
 
 @NgModule({
   declarations: [
@@ -34,7 +35,9 @@ import { FooterComponent } from './footer/footer.component';
     MypostsComponent,
     CreateProfileComponent,
     ViewProfileComponent,
-    FooterComponent
+    FooterComponent,
+    ResetPasswordComponent,
+    ForgotPasswordComponent,
   ],
   imports: [
     BrowserModule,

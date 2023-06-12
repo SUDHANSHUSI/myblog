@@ -27,7 +27,7 @@
           routerLinkActive="active"
           *ngIf="userIsAuthenticated"
         >
-          <a class="nav-link" routerLink="/create">Create</a>
+          <a class="nav-link" routerLink="/create">CreatePosts</a>
         </li>
 
         <li
@@ -59,7 +59,7 @@
           routerLinkActive="active"
           *ngIf="!userIsAuthenticated"
         >
-          <a class="nav-link" routerLink="/login">Auth</a>
+          <a class="nav-link" routerLink="/login">Login</a>
         </li>
 
         <li
@@ -70,7 +70,6 @@
           <a class="nav-link" (click)="onLogout()">Logout</a>
         </li>
       </ul>
-
       <ul class="nav mymenu mt-5">
         <li class="nav-item">
           <a

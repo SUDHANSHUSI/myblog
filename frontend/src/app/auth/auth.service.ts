@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { ProfileService } from '../services/profile.service';
 import { AuthData } from './user.model';
 
@@ -94,6 +94,17 @@ export class AuthService {
     this.clearAuthData();
     this.router.navigate(["/"]);
   }
+forgotPassword(email:string):Observable<any>{
+  const url = `${BACKEND_URL}forgotPassword`;
+  return this.http.post(url,{email})
+}
+
+  resetPassword(token: string, newPassword: string): Observable<any> {
+  const url = `${BACKEND_URL}resetPassword/${token}`;
+   const body = { newPassword, token };
+  return this.http.patch(url,body);
+}
+
 
 
   autoAuthUser() {
