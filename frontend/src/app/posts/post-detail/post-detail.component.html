@@ -14,7 +14,10 @@
         >
           Edit Post
         </a>
+
+        
         <a
+         (click)="postId = post.id"
           data-toggle="modal"
           data-target="#exampleModal"
           class="list-group-item list-group-item-action"
@@ -24,7 +27,7 @@
 
       <!-- Modal -->
       <div
-        class="modal fade"
+        class="modal"
         id="exampleModal"
         tabindex="-1"
         role="dialog"

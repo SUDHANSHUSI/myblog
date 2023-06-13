@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { Post } from '../posts/post.model';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Subject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { BehaviorSubject, Subject, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import {environment} from '../../environments/environment'
 const BACKEND_URL = environment.apiUrl + "/posts"
 @Injectable({
@@ -137,24 +137,35 @@ export class PostService {
         });
   }
 
-  deletePost(postId: string) {
-    this.http
-      .delete(BACKEND_URL +"/"+ postId)
-      .subscribe(
-        (data) => {
+  // deletePost(postId: string) {
+  //   this.http
+  //     .delete(BACKEND_URL +"/"+ postId)
+  //     .subscribe(
+  //       (data) => {
 
-        this.err.next(null)
-        const updatedPosts = this.posts.filter(post => post.id !== postId);
-        this.posts = updatedPosts;
-        this.postsUpdated.next([...this.posts]);
-        this.router.navigate(["/"]);
+  //       this.err.next(null)
+  //       const updatedPosts = this.posts.filter(post => post.id !== postId);
+  //       this.posts = updatedPosts;
+  //       this.postsUpdated.next([...this.posts]);
+  //       this.router.navigate(["/"]);
 
 
-      },
-        e => {
-          this.err.next(e)
+  //     },
+  //       e => {
+  //         this.err.next(e)
 
-        });
+  //       });
 
+  // }
+    deletePost(postId: string) {
+      console.log(postId)
+    return this.http.delete<{ message: string }>(`${BACKEND_URL}/${postId}`)
+      .pipe(
+        catchError(
+          (error:any) => {
+          this.err.next(error);
+          return throwError(error);
+        })
+      );
   }
 }
