@@ -38,7 +38,7 @@ export class AuthService {
   }
 
 
-  signIn(email: string, password: string) {
+  login(email: string, password: string) {
     const authData: AuthData = { email: email, password: password };
     this.http
       .post<{ token: string; expiresIn: number, userId: string }>(
@@ -70,7 +70,7 @@ export class AuthService {
   }
 
 
-  createUser(email: string, password: string) {
+  signupUser(email: string, password: string) {
     const authData: AuthData = { email: email, password: password };
     this.http
       .post(BACKEND_URL + "signup", authData)
@@ -94,6 +94,7 @@ export class AuthService {
     this.clearAuthData();
     this.router.navigate(["/"]);
   }
+  
 forgotPassword(email:string):Observable<any>{
   const url = `${BACKEND_URL}forgotPassword`;
   return this.http.post(url,{email})

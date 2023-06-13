@@ -140,7 +140,8 @@ export class PostService {
   deletePost(postId: string) {
     this.http
       .delete(BACKEND_URL +"/"+ postId)
-      .subscribe((data) => {
+      .subscribe(
+        (data) => {
 
         this.err.next(null)
         const updatedPosts = this.posts.filter(post => post.id !== postId);

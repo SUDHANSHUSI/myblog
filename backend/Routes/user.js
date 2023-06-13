@@ -9,88 +9,89 @@ require("dotenv").config();
 
 const router = express.Router();
 
-
 //////////////////////////////////// SIGN UP /////////////////////////////////////////////////////
 
-router.post("/signup", (req, res, next) => {
-  bcrypt.hash(req.body.password, 10).then((hash) => {
+router.post("/signup", async (req, res, next) => {
+  try {
+    const userExists = await User.findOne({ email: req.body.email });
+    if (userExists) {
+      return res.status(401).json({
+        message: "User Already Exists",
+      });
+    }
+
     const user = new User({
       email: req.body.email,
-      password: hash,
+      password: req.body.password,
     });
 
-    User.findOne({ email: req.body.email }).then((user1) => {
-      if (user1) {
-        return res.status(401).json({
-          message: "User Already Exists",
-        });
-      }
+    const result = await user.save();
+    if (!result) {
+      return res.status(500).json({
+        message: "Error Creating User",
+      });
+    }
 
-      user
-        .save()
-        .then(async (result) => {
-          if (!result) {
-            return res.status(500).json({
-              message: "Error Creating User",
-            });
-          }
-          const message = `Here are your credentials:\nEmail: ${req.body.email}\nPassword: ${req.body.password}`;
-
-          await sendEmail({
-            email: user.email,
-            subject: "Thank you for signing up!",
-            message,
-          });
-
-          res.status(201).json({
-            message: "User created!",
-            result: result,
-          });
-        })
-        .catch((err) => {
-          res.status(500).json({
-            error: err,
-          });
-        });
+    const message = `Here are your credentials:\nEmail: ${req.body.email}\nPassword: ${req.body.password}`;
+    await sendEmail({
+      email: user.email,
+      subject: "Thank you for signing up!",
+      message,
     });
-  });
+
+    res.status(201).json({
+      message: "User created!",
+      result: result,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      error: error,
+    });
+  }
 });
 
 ///////////////////////////////////////LOGIN /////////////////////////////////////////////////////
 
-router.post("/login", (req, res, next) => {
-  let fetchedUser;
+router.post("/login", async (req, res, next) => {
+  const { email, password } = req.body;
+  // console.log(email, password);
 
-  User.findOne({ email: req.body.email })
-    .then((user) => {
-      if (!user) {
-        return res.status(401).json({
-          message: "Auth failed no such user",
-        });
-      }
-      fetchedUser = user;
-      return bcrypt.compare(req.body.password, user.password);
-    })
-    .then((result) => {
-      if (!result) {
-        return res.status(401).json({
-          message: "Auth failed incorrect password",
-        });
-      }
-      const token = jwt.sign(
-        { email: fetchedUser.email, userId: fetchedUser._id },
-        process.env.JWT_SECRET,
-        { expiresIn: "1h" }
-      );
-      res.status(200).json({
-        token: token,
-        expiresIn: 3600,
-        userId: fetchedUser._id,
+  try {
+    const fetchedUser = await User.findOne({ email });
+    // console.log(fetchedUser);
+    if (!fetchedUser) {
+      return res.status(401).json({
+        message: "Auth failed: No such user",
       });
-    })
-    .catch((e) => {
-      console.log(e);
+    }
+
+    const result = await bcrypt.compare(password, fetchedUser.password);
+    // console.log(result);
+    if (result === false) {
+      return res.status(401).json({
+        message: "Auth failed: Incorrect password",
+      });
+    }
+
+    const token = jwt.sign(
+      { email: fetchedUser.email, userId: fetchedUser._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    res.status(200).json({
+      token: token,
+      expiresIn: 3600,
+      userId: fetchedUser._id,
     });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "An error occurred during login",
+      error: error,
+    });
+  }
 });
 
 ////////////////////////////////////////////////// FORGOT PASSOWRD/////////////////////////////////////////////////
@@ -105,7 +106,6 @@ const hashToken = (token) => {
   sha256.update(token);
   return sha256.digest("hex");
 };
-
 
 router.post("/forgotPassword", async (req, res, next) => {
   try {
@@ -125,9 +125,7 @@ router.post("/forgotPassword", async (req, res, next) => {
     user.passwordResetToken = tokenDB;
     await user.save({ validateBeforeSave: false });
 
-    const resetURL = `${req.protocol}://${req.get(
-      "host"
-    )}/user/resetPassword/${resetToken}`;
+    const resetURL = `http://localhost:4200/#/reset-password/ ${resetToken}`;
 
     const message = `Hey ${user.name}, \n Forgot your password? Don't Worry :) \n Submit a PATCH request with your new password to: ${resetURL} \n If you didn't forget your password, please ignore this email ! `;
 
@@ -180,5 +178,12 @@ router.patch("/resetPassword/:token", async (req, res, next) => {
     console.log(err);
   }
 });
+router.get("/resetPassword/:token", (req, res, next) => {
+  const token = req.params.token;
+  // Render the reset password page or perform any other desired actions
+  res.render("reset-password", { token });
+});
 
 module.exports = router;
+
+

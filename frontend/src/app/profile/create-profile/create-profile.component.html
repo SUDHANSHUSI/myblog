@@ -10,6 +10,7 @@
           class="form-control"
           placeholder="Username"
           (focus)="clearError()" 
+          (blur)="checkUsername($event)"
           
         />
         <ng-container *ngIf="error">

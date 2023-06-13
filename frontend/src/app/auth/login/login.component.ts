@@ -34,12 +34,12 @@ export class LoginComponent implements OnInit {
     const password = form.value.password;
 
     if (this.isLoginMode) {
-      this.authService.signIn(email, password)
+      this.authService.login(email, password)
 
       form.reset()
     }
     else {
-      this.authService.createUser(email, password)
+      this.authService.signupUser(email, password)
 
       form.reset()
     }

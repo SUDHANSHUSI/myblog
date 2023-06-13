@@ -148,12 +148,31 @@ export class CreateProfileComponent implements OnInit {
     this.error = ''
   }
 
-  checkUsername(uname:string) {
-    this.profileService.getProfileByUsername(uname).subscribe(profile => {
-      if (profile && uname !== this.uname) {
-        this.error = "Username is already taken!"
-      }
+  // checkUsername(uname:string) {
+  //   this.profileService.getProfileByUsername(uname).subscribe(profile => {
+  //     if (profile && uname !== this.uname) {
+  //       this.error = "Username is already taken!"
+  //     }
 
-    })
-  }
+  //   })
+  // }
+//   checkUsername(uname: string | null | undefined) {
+//   if (uname) {
+//     this.profileService.getProfileByUsername(uname).subscribe((profile) => {
+//       if (profile && uname !== this.uname) {
+//         this.error = "Username is already taken!";
+//       }
+//     });
+//   }
+// }
+checkUsername(event: Event) {
+  const uname = (event.target as HTMLInputElement).value;
+  this.profileService.getProfileByUsername(uname).subscribe((profile) => {
+    if (profile && uname !== this.uname) {
+      this.error = "Username is already taken!";
+    }
+  });
+}
+
+
 }
