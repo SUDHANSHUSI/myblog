@@ -18,6 +18,8 @@ export class AuthService {
   private userId!: string;
   private authStatusListener = new Subject<boolean>();
   public err = new BehaviorSubject<any>(null);
+
+  
   constructor(private http: HttpClient, private router: Router,
     private profileService: ProfileService) { }
 
@@ -95,17 +97,16 @@ export class AuthService {
     this.router.navigate(["/"]);
   }
   
-forgotPassword(email:string):Observable<any>{
-  const url = `${BACKEND_URL}forgotPassword`;
-  return this.http.post(url,{email})
+forgotPassword(email: string) {
+    const url = BACKEND_URL + 'forgotPassword';
+    const body = { email };
+    return this.http.post(url, body);
 }
 
-  resetPassword(token: string, newPassword: string): Observable<any> {
-  const url = `${BACKEND_URL}resetPassword/${token}`;
-   const body = { newPassword, token };
-  return this.http.patch(url,body);
+resetPassword(token: string, password: string): Observable<any> {
+  const resetData = { token: token, password: password };
+  return this.http.patch(BACKEND_URL + 'resetPassword', resetData);
 }
-
 
 
   autoAuthUser() {

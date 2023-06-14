@@ -25,9 +25,6 @@
       background-position: left top;
   }
 
-
-
-
   @media screen and (max-width:551px){
     .body-text{
         flex: 2;
@@ -38,14 +35,6 @@
     margin: 3rem auto;
     width: 50%;
   }
-
-
-
-
-
-
-
-
 .podcast-entry .image {
   width: 250px;
   height: auto;

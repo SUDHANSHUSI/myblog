@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { AuthService } from '../auth.service';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-forgot-password',
@@ -8,20 +7,29 @@ import { Router } from '@angular/router';
   styleUrls: ['./forgot-password.component.css']
 })
 export class ForgotPasswordComponent {
-  email!: string;
+  email: string = '';
+  error: any = null;
+  isLoading: boolean = false;
 
-  constructor(private authService: AuthService,
-    private router:Router) {}
+  constructor(private authService: AuthService) {}
 
-  onSubmit() {
+  onSubmit(form: any) {
+    if (!form.valid) {
+      return;
+    }
+
+    this.isLoading = true;
     this.authService.forgotPassword(this.email).subscribe(
-      response => {
-        alert('Email for password reset sent!');
-          const token = response.token;
-        this.router.navigate(['/reset-password', token]);
+      (response:any) => {
+        console.log(response);
+        // Handle success response
+        this.isLoading = false;
       },
-      error => {
-        alert('Error sending email for password reset.');
+     ( error:any) => {
+        console.log(error);
+        // Handle error response
+        this.error = error;
+        this.isLoading = false;
       }
     );
   }

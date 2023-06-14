@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const Post = mongoose.model('Post', {
+const postSchema =new mongoose.Schema({
     title: {
         type: String,
         required: true
@@ -23,5 +23,6 @@ const Post = mongoose.model('Post', {
         creator: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }
 });
 
+const Post = new mongoose.model("Post",postSchema);
 
 module.exports = Post

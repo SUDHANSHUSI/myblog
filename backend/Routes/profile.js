@@ -35,142 +35,106 @@ router.post(
   "/create",
   checkAuth,
   multer({ storage: storage }).single("image"),
-  (req, res, next) => {
-    const url = req.protocol + "://" + req.get("host");
-    const profile = new Profile({
-      username: req.body.username,
-      bio: req.body.bio,
-      imagePath: url + "/images/" + req.file.filename,
-      creator: req.userData.userId,
-    });
-
-    Profile.findOne({ creator: req.userData.userId })
-      .then((user1) => {
-        if (user1) {
-          return res.status(401).json({
-            message: "Profile Already Exist",
-          });
-        }
-        return profile.save();
-      })
-      .then((prof) => {
-        if (!prof) {
-          return res.status(500).json({
-            message: "Error Creating Profile",
-          });
-        }
-        res.status(201).json({
-          message: "Profile created!",
-          profile: prof,
-        });
-      })
-      .catch((e) => {
-        console.log("error is", e);
+  async (req, res, next) => {
+    try {
+      const url = req.protocol + "://" + req.get("host");
+      const profile = new Profile({
+        username: req.body.username,
+        bio: req.body.bio,
+        imagePath: url + "/images/" + req.file.filename,
+        creator: req.userData.userId,
       });
+
+      const existingProfile = await Profile.findById(req.userData.userId);
+      if (existingProfile) {
+        return res.status(401).json({
+          message: "Profile Already Exists",
+        });
+      }
+
+      const savedProfile = await profile.save();
+      if (!savedProfile) {
+        return res.status(500).json({
+          message: "Error Creating Profile",
+        });
+      }
+
+      res.status(201).json({
+        message: "Profile created!",
+        profile: savedProfile,
+      });
+    } catch (error) {
+      console.log("Error:", error);
+      res.status(500).json({
+        message: "Error Creating Profile",
+        error: error.message,
+      });
+    }
   }
 );
 
-// router.put(
-//     "/edit/:id",
-//     checkAuth,
-//     multer({ storage: storage }).single("image"),
-//     (req, res, next) => {
-//         let imagePath = req.body.imagePath;
-//         const url = req.protocol + "://" + req.get("host")
-//         if (req.file) {
-//             const url = req.protocol + "://" + req.get("host");
-//             imagePath = url + "/images/" + req.file.filename
-//         }
-
-//         const profile = new Profile({
-//             _id: req.body.id,
-//             username: req.body.username,
-//             bio: req.body.bio,
-//             imagePath:imagePath,
-//             creator: req.userData.userId
-//         })
-
-//         Profile.updateOne(
-//             { _id: req.params.id, creator: req.userData.userId },
-//             profile
-//           ).then(result => {
-//             if(result){
-//                 res.status(200).json({ message: "Update successful!" });
-//             }
-
-//             else {
-//                 res.status(500).json({ message: "Error Upating Profile" });
-//             }
-//         })
-//         .catch(e=>{
-//             res.status(500).json({ message: "Error Upating Profile ,Username taken" });
-//             console.log(e)
-//         });
-//     }
-// );
 
 
 router.put(
   "/edit/:id",
   checkAuth,
   multer({ storage: storage }).single("image"),
-  (req, res, next) => {
-    let imagePath = req.body.imagePath;
-    const url = req.protocol + "://" + req.get("host");
-    if (req.file) {
-      imagePath = url + "/images/" + req.file.filename;
+  async (req, res, next) => {
+    try {
+      let imagePath = req.body.imagePath;
+      const url = req.protocol + "://" + req.get("host");
+      if (req.file) {
+        imagePath = url + "/images/" + req.file.filename;
+      }
+
+      const profile = {
+        username: req.body.username,
+        bio: req.body.bio,
+        imagePath: imagePath,
+        creator: req.userData.userId,
+      };
+
+      const updatedProfile = await Profile.findByIdAndUpdate(
+        req.params.id,
+        profile,
+        { new: true }
+      );
+
+      if (updatedProfile) {
+        res.status(200).json({ message: "Update successful!" });
+      } else {
+        res.status(404).json({ message: "Profile not found or unauthorized" });
+      }
+    } catch (error) {
+      console.log("Error:", error);
+      res.status(500).json({ message: "Error updating profile", error: error.message });
     }
-
-    const profile = {
-      username: req.body.username,
-      bio: req.body.bio,
-      imagePath: imagePath,
-      creator: req.userData.userId,
-    };
-
-    Profile.updateOne(
-      { _id: req.params.id, creator: req.userData.userId },
-      profile
-    )
-      .then((result) => {
-        if (result) {
-          res.status(200).json({ message: "Update successful!" });
-        } else {
-          res
-            .status(404)
-            .json({ message: "Profile not found or unauthorized" });
-        }
-      })
-      .catch((e) => {
-        res.status(500).json({ message: "Error updating profile" });
-        console.log(e);
-      });
   }
 );
 
 
-router.get("/profiles", (req, res, next) => {
-  Profile.find()
-    .then((prof) => {
-      if (prof.length > 0) {
-        res.status(200).json({
-          message: "Profile fetched successfully!",
-          profile: prof,
-        });
-      } else {
-        res.status(404).json({ message: "Profile not found!" });
-      }
-    })
-    .catch((e) => {
-      console.log(e);
-      res.status(500).json({ message: "Error fetching profile" });
-    });
+router.get("/profiles", async (req, res, next) => {
+  try {
+    const prof = await Profile.find();
+    if (prof.length > 0) {
+      res.status(200).json({
+        message: "Profiles fetched successfully!",
+        profile: prof,
+      });
+    } else {
+      res.status(404).json({ message: "Profiles not found!" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Error fetching profiles", error: error.message });
+  }
 });
 
 
 
-router.get("/viewprofile", checkAuth, (req, res, next) => {
-  Profile.findOne({ creator: req.userData.userId }).then((prof) => {
+router.get("/viewprofile", checkAuth, async (req, res, next) => {
+  try {
+    const prof = await Profile.findOne({ creator: req.userData.userId });
     if (prof) {
       res.status(200).json({
         message: "Profile fetched successfully!",
@@ -179,11 +143,19 @@ router.get("/viewprofile", checkAuth, (req, res, next) => {
     } else {
       res.status(404).json({ message: "Profile not found!" });
     }
-  });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching profile" });
+  }
 });
 
-router.get("/bycreator/:id", (req, res, next) => {
-  Profile.findOne({ creator: req.params.id }).then((prof) => {
+
+
+
+
+router.get("/bycreator/:id", async (req, res, next) => {
+  try {
+    const prof = await  Profile.findOne({ creator: req.params.id });
     if (prof) {
       res.status(200).json({
         message: "Profile fetched successfully!",
@@ -192,33 +164,41 @@ router.get("/bycreator/:id", (req, res, next) => {
     } else {
       res.status(404).json({ message: "Profile not found!" });
     }
-  });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching profile" });
+  }
 });
-router.get("/:id/mypost", (req, res, next) => {
-  let user;
-  let creatorId;
-  Profile.findOne({ username: req.params.id })
-    .then((prof) => {
-      if (prof) {
-        user = prof;
-        return Post.find({ creator: user.creator });
-      }
-    })
-    .then((post) => {
+
+
+
+router.get("/:id/mypost", async (req, res, next) => {
+  try {
+    let user;
+    let creatorId;
+    const prof = await Profile.findOne({ username: req.params.id });
+    if (prof) {
+      user = prof;
+      const post = await Post.find({ creator: user.creator });
       res.status(200).json({
         message: "Post fetched successfully!",
         post: post,
       });
-    })
-    .catch((e) => {
-      console.log(e);
-      res.status(404).json({ message: "error Fetching Post!" });
-    });
+    } else {
+      res.status(404).json({ message: "Profile not found!" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching post" });
+  }
 });
 
-router.get("/:id", (req, res, next) => {
-  let creatorId;
-  Profile.findOne({ username: req.params.id }).then((prof) => {
+
+
+
+router.get("/:id", async (req, res, next) => {
+  try {
+    const prof = await Profile.findOne({ username: req.params.id });
     if (prof) {
       res.status(200).json({
         message: "Profile fetched successfully!",
@@ -227,7 +207,10 @@ router.get("/:id", (req, res, next) => {
     } else {
       res.status(404).json({ message: "Profile not found!" });
     }
-  });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Error fetching profile" });
+  }
 });
 
 module.exports = router;

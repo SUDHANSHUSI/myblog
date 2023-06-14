@@ -55,11 +55,9 @@ router.post("/signup", async (req, res, next) => {
 
 router.post("/login", async (req, res, next) => {
   const { email, password } = req.body;
-  // console.log(email, password);
 
   try {
     const fetchedUser = await User.findOne({ email });
-    // console.log(fetchedUser);
     if (!fetchedUser) {
       return res.status(401).json({
         message: "Auth failed: No such user",
@@ -67,7 +65,6 @@ router.post("/login", async (req, res, next) => {
     }
 
     const result = await bcrypt.compare(password, fetchedUser.password);
-    // console.log(result);
     if (result === false) {
       return res.status(401).json({
         message: "Auth failed: Incorrect password",
@@ -125,9 +122,9 @@ router.post("/forgotPassword", async (req, res, next) => {
     user.passwordResetToken = tokenDB;
     await user.save({ validateBeforeSave: false });
 
-    const resetURL = `http://localhost:4200/#/reset-password/ ${resetToken}`;
+    const resetURL = `${req.protocol}://${req.get("host")}/reset-password/${resetToken}`;;
 
-    const message = `Hey ${user.name}, \n Forgot your password? Don't Worry :) \n Submit a PATCH request with your new password to: ${resetURL} \n If you didn't forget your password, please ignore this email ! `;
+    const message = `Hey ${user.email} \n Forgot your password? Don't Worry :) \n Submit a PATCH request with your new password to: ${resetURL} \n If you didn't forget your password, please ignore this email ! `;
 
     await sendEmail({
       email: user.email,
@@ -178,12 +175,6 @@ router.patch("/resetPassword/:token", async (req, res, next) => {
     console.log(err);
   }
 });
-router.get("/resetPassword/:token", (req, res, next) => {
-  const token = req.params.token;
-  // Render the reset password page or perform any other desired actions
-  res.render("reset-password", { token });
-});
-
 module.exports = router;
 
 

@@ -1,4 +1,3 @@
-// reset-password.component.ts
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../auth.service';
@@ -6,43 +5,41 @@ import { AuthService } from '../auth.service';
 @Component({
   selector: 'app-reset-password',
   templateUrl: './reset-password.component.html',
-  styleUrls: ['./reset-password.component.css'],
+  styleUrls: ['./reset-password.component.css']
 })
-export class ResetPasswordComponent implements OnInit{
-  token!: string;
-  newPassword!: string;
-  resetSuccess: boolean = false;
-  resetError:boolean=false;
+export class ResetPasswordComponent implements OnInit {
+  token: string = '';
+  password: string = '';
   errorMessage: string = '';
+  successMessage: string = '';
+  isLoading: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
-    private authService: AuthService
-  ) {}
-  
-  ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
-      this.token = params['token'];
-      if (!this.token) {
-        // Token not available, redirect to another page or show an error message
-        this.router.navigate(['/forgot-password']);
-      }
-    });
+    private authService: AuthService,
+    private router: Router
+  ) { }
+
+  ngOnInit() {
+    this.token = this.route.snapshot.params['token'];
   }
-  onSubmit() {
-    this.authService.resetPassword(this.newPassword, this.token).subscribe(
-      (response) => {
-        alert('Password changed successfully!');
-        this.router.navigate(['/login'])
-      },
-      (error) => {
-        alert('Error changing password.');
-      }
-    );
-  }
-    goBackToLogin() {
-    // Redirect to the login page
-    this.router.navigate(['/login']);
+
+  onResetPassword() {
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.authService.resetPassword(this.token, this.password)
+      .subscribe(
+        () => {
+          this.successMessage = 'Password reset successful';
+          this.isLoading = false;
+          // Redirect to login page or any other desired page
+          this.router.navigate(['/login']);
+        },
+        error => {
+          this.errorMessage = error.message;
+          this.isLoading = false;
+        }
+      );
   }
 }

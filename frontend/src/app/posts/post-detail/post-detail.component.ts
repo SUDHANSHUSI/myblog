@@ -91,21 +91,10 @@ export class PostDetailComponent implements OnInit, OnDestroy {
 
 
 
-  // OnDelete(postId: string) {
-  //   this.postsService.deletePost(postId)
-  // }
-
   OnDelete(postId: string) {
-    console.log(postId)
-  this.postsService.deletePost(postId).subscribe(
-    (response) => {
-      this.router.navigate(['/myposts']);
-    },
-    (error) => {
-      console.log(error);
-    }
-  );
-}
+    this.postsService.deletePost(postId)
+  }
+
 
 
   getPostUserByCreatorId(id:string) {

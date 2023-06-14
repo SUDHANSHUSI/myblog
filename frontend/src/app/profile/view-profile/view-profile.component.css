@@ -1,4 +1,4 @@
-.icon-twitter:before {
+/* .icon-twitter:before {
     content: "\f099";
 }
 
@@ -44,7 +44,7 @@
     background-position: center center;
     background-repeat: no-repeat;
     /* height: 300px; */
-  }
+ /* }
   
   .podcast-entry .text {
     width: 100%;
@@ -99,4 +99,200 @@
   .podcast-entry .text{
     padding: 25px;
   }
-  }
+  } */
+
+  /* .container {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+}
+
+.py-5 {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+.loading-text {
+  text-align: center;
+}
+
+.row.profile {
+  margin-bottom: 3rem;
+}
+
+.profile .col-md-8 {
+  order: 2;
+}
+
+.profile .col-md-4 {
+  order: 1;
+}
+
+.profile h2 {
+  color: #000;
+  font-weight: 300;
+  margin-bottom: 4px;
+}
+
+.profile a {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: blue;
+  text-decoration: none;
+}
+
+.profile p {
+  margin-bottom: 0;
+}
+
+.profile .col-md-4 img {
+  width: 50%;
+  border-radius: 50%;
+  margin-bottom: 1.5rem;
+}
+
+.font-weight-light {
+  font-weight: 300;
+}
+
+.text-black {
+  color: #000;
+}
+
+.text-black-opacity-05 {
+  opacity: 0.5;
+}
+
+.col-lg-12 {
+  width: 100%;
+}
+
+.d-block {
+  display: block;
+}
+
+.d-md-flex {
+  display: flex;
+}
+
+.podcast-entry {
+  background-color: #fff;
+  margin-bottom: 3rem;
+}
+
+.aos-init {
+  visibility: hidden;
+  display: block;
+}
+
+.aos-animate {
+  visibility: visible;
+}
+
+.image {
+  width: 100%;
+}
+
+.text {
+  padding: 20px;
+}
+
+.text h3 {
+  font-size: 24px;
+  font-weight: 300;
+}
+
+.text h3 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.text-white {
+  color: #fff;
+}
+
+.desc {
+  margin-top: 20px;
+}
+
+.desc p {
+  margin-bottom: 0;
+}
+
+.desc a {
+  color: #337ab7;
+  text-decoration: none;
+}
+
+.nopost {
+  font-size: 24px;
+  font-weight: 300;
+  margin-top: 3rem;
+  margin-bottom: 0;
+} */
+.container {
+  max-width: 800px; /* Adjust the maximum width of the container */
+  margin: 0 auto; /* Center the container horizontally */
+}
+
+.profile {
+  margin-bottom: 30px; /* Add bottom margin to the profile section */
+}
+
+.profile h2 {
+  font-weight: lighter; /* Adjust the font weight of the profile heading */
+  margin-bottom: 20px; /* Add bottom margin to the profile heading */
+}
+
+.profile p {
+  margin-bottom: 20px; /* Add bottom margin to the profile description */
+}
+
+.profile img {
+  max-width: 100%; /* Make the profile image responsive */
+  height: auto;
+  border-radius: 50%; /* Add border radius to make the image circular */
+  margin-bottom: 20px; /* Add bottom margin to the profile image */
+}
+
+.podcast-entry {
+  padding: 30px; /* Add padding to the podcast entry section */
+  border-radius: 10px; /* Add border radius to the podcast entry section */
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); /* Add box shadow to create a card effect */
+  margin-bottom: 30px; /* Add bottom margin to the podcast entry section */
+}
+
+.podcast-entry .image {
+  width: 200px; /* Adjust the width of the podcast entry image */
+  height: 200px; /* Adjust the height of the podcast entry image */
+  background-size: cover;
+  background-position: center;
+  border-radius: 10px; /* Add border radius to the podcast entry image */
+  float: left;
+  margin-right: 20px; /* Add right margin to create space between image and text */
+}
+
+.podcast-entry .text {
+  overflow: hidden; /* Hide overflowing text */
+}
+
+.podcast-entry h3 {
+  font-weight: lighter; /* Adjust the font weight of the podcast entry title */
+  margin-bottom: 10px; /* Add bottom margin to the podcast entry title */
+}
+
+.podcast-entry .text-white {
+  color: #fff; /* Adjust the text color of the podcast entry metadata */
+}
+
+.podcast-entry .text-black-opacity-05 {
+  color: rgba(0, 0, 0, 0.5); /* Adjust the opacity of the podcast entry metadata */
+}
+
+.podcast-entry .desc {
+  margin-top: 10px; /* Add top margin to the podcast entry description */
+}
+
+.nopost {
+  margin-top: 40px; /* Adjust the top margin of the "No Posts" message */
+  color: #888; /* Adjust the text color of the "No Posts" message */
+}
