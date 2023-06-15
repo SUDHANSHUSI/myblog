@@ -103,9 +103,15 @@ forgotPassword(email: string) {
     return this.http.post(url, body);
 }
 
-resetPassword(token: string, password: string): Observable<any> {
-  const resetData = { token: token, password: password };
-  return this.http.patch(BACKEND_URL + 'resetPassword', resetData);
+// resetPassword(token: string, password: string): Observable<any> {
+//   const resetData = { token: token, password: password };
+//   return this.http.patch(BACKEND_URL + 'resetPassword', resetData);
+// }
+
+resetPassword(token: string, password: string) {
+  const url = BACKEND_URL + 'resetPassword/' + token;
+  const body = { password };
+  return this.http.patch(url, body);
 }
 
 

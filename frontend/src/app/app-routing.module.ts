@@ -12,13 +12,12 @@ import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.
 import { ResetPasswordComponent } from './auth/reset-password/reset-password.component';
 
 const routes: Routes = [
-  { path: '', component: PostListComponent },
-  { path: 'myposts', component: MypostsComponent, canActivate: [AuthGuard] },
-  { path: 'create', component: CreatePostComponent, canActivate: [AuthGuard] },
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'Forgot Password', component: ForgotPasswordComponent },
-  { path: 'reset-password/:token', component: ResetPasswordComponent },
+  { path: ' reset-password/:token', component: ResetPasswordComponent },
+  { path: 'create', component: CreatePostComponent, canActivate: [AuthGuard] },
+  { path: 'myposts', component: MypostsComponent, canActivate: [AuthGuard] },
+  { path: '', component: PostListComponent },
   {
     path: 'myposts/:postId',
     component: PostDetailComponent,
@@ -48,11 +47,10 @@ const routes: Routes = [
   },
   { path: 'public/:profileId/posts/:postId', component: PostDetailComponent },
   { path: ':postId', component: PostDetailComponent },
-
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { useHash: true })],
+  imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule],
 })
 export class AppRoutingModule {}
