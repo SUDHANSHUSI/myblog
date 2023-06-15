@@ -101,7 +101,7 @@
   }
   } */
 
-  /* .container {
+  .container {
   padding-top: 5rem;
   padding-bottom: 5rem;
 }
@@ -228,71 +228,4 @@
   font-weight: 300;
   margin-top: 3rem;
   margin-bottom: 0;
-} */
-.container {
-  max-width: 800px; /* Adjust the maximum width of the container */
-  margin: 0 auto; /* Center the container horizontally */
-}
-
-.profile {
-  margin-bottom: 30px; /* Add bottom margin to the profile section */
-}
-
-.profile h2 {
-  font-weight: lighter; /* Adjust the font weight of the profile heading */
-  margin-bottom: 20px; /* Add bottom margin to the profile heading */
-}
-
-.profile p {
-  margin-bottom: 20px; /* Add bottom margin to the profile description */
-}
-
-.profile img {
-  max-width: 100%; /* Make the profile image responsive */
-  height: auto;
-  border-radius: 50%; /* Add border radius to make the image circular */
-  margin-bottom: 20px; /* Add bottom margin to the profile image */
-}
-
-.podcast-entry {
-  padding: 30px; /* Add padding to the podcast entry section */
-  border-radius: 10px; /* Add border radius to the podcast entry section */
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); /* Add box shadow to create a card effect */
-  margin-bottom: 30px; /* Add bottom margin to the podcast entry section */
-}
-
-.podcast-entry .image {
-  width: 200px; /* Adjust the width of the podcast entry image */
-  height: 200px; /* Adjust the height of the podcast entry image */
-  background-size: cover;
-  background-position: center;
-  border-radius: 10px; /* Add border radius to the podcast entry image */
-  float: left;
-  margin-right: 20px; /* Add right margin to create space between image and text */
-}
-
-.podcast-entry .text {
-  overflow: hidden; /* Hide overflowing text */
-}
-
-.podcast-entry h3 {
-  font-weight: lighter; /* Adjust the font weight of the podcast entry title */
-  margin-bottom: 10px; /* Add bottom margin to the podcast entry title */
-}
-
-.podcast-entry .text-white {
-  color: #fff; /* Adjust the text color of the podcast entry metadata */
-}
-
-.podcast-entry .text-black-opacity-05 {
-  color: rgba(0, 0, 0, 0.5); /* Adjust the opacity of the podcast entry metadata */
-}
-
-.podcast-entry .desc {
-  margin-top: 10px; /* Add top margin to the podcast entry description */
-}
-
-.nopost {
-  margin-top: 40px; /* Adjust the top margin of the "No Posts" message */
-  color: #888; /* Adjust the text color of the "No Posts" message */
 }

@@ -13,11 +13,11 @@ import { ResetPasswordComponent } from './auth/reset-password/reset-password.com
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
-  { path: 'Forgot Password', component: ForgotPasswordComponent },
-  { path: ' reset-password/:token', component: ResetPasswordComponent },
+  { path: 'forgotPassword', component: ForgotPasswordComponent },
+  { path: 'reset-password/:token', component: ResetPasswordComponent },
   { path: 'create', component: CreatePostComponent, canActivate: [AuthGuard] },
-  { path: 'myposts', component: MypostsComponent, canActivate: [AuthGuard] },
   { path: '', component: PostListComponent },
+  { path: 'myposts', component: MypostsComponent, canActivate: [AuthGuard] },
   {
     path: 'myposts/:postId',
     component: PostDetailComponent,
@@ -50,7 +50,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, { useHash: true })],
   exports: [RouterModule],
 })
 export class AppRoutingModule {}

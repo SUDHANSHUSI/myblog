@@ -122,7 +122,7 @@ router.post("/forgotPassword", async (req, res, next) => {
     user.passwordResetToken = tokenDB;
     await user.save({ validateBeforeSave: false });
 
-    const resetURL = `http://127.0.0.1:4200/reset-password/${resetToken}`;
+    const resetURL = `http://localhost:4200/#/reset-password/${resetToken}`;
 
     const message = `Hey ${user.email} \n Forgot your password? Don't Worry :) \n Submit a PATCH request with your new password to: ${resetURL} \n If you didn't forget your password, please ignore this email ! `;
 
@@ -167,6 +167,13 @@ router.patch("/resetPassword/:token", async (req, res, next) => {
     user.password = password;
     user.passwordResetToken = undefined;
     await user.save();
+
+       const message = `Your password has been successfully reset.\n\nEmail: ${user.email}\nPassword: ${password}`;
+    await sendEmail({
+      email: user.email,
+      subject: "Password Reset Successfull!",
+      message,
+    });
 
     res.status(200).json({
       msg: "Password successfully changed",

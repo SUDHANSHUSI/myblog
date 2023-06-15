@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { AuthService } from '../auth.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-login',
@@ -11,7 +12,9 @@ export class LoginComponent implements OnInit {
   isLoginMode = true;
   isLoading = false;
   error: any = null;
-  constructor(private authService: AuthService) { }
+
+  constructor(private authService: AuthService,
+    private toastr:ToastrService) { }
 
   ngOnInit(): void {
     this.error = null
@@ -34,15 +37,37 @@ export class LoginComponent implements OnInit {
     const password = form.value.password;
 
     if (this.isLoginMode) {
-      this.authService.login(email, password)
-
-      form.reset()
-    }
-    else {
-      this.authService.signupUser(email, password)
-
-      form.reset()
+      this.authService.login(email, password).subscribe(
+        (response: any) => {
+          // Handle success response
+          this.isLoading = false;
+          this.toastr.success('Logged in successfully!');
+          form.reset();
+        },
+        (error: any) => {
+          // Handle error response
+          this.error = error;
+          this.isLoading = false;
+        }
+      );
+    } else {
+      this.authService.signupUser(email, password).subscribe(
+        (response: any) => {
+          // Handle success response
+          this.isLoading = false;
+          this.toastr.success('Account created successfully!');
+          form.reset();
+        },
+        (error: any) => {
+          // Handle error response
+          this.error = error;
+          this.isLoading = false;
+        }
+      );
     }
   }
-
 }
+
+
+
+

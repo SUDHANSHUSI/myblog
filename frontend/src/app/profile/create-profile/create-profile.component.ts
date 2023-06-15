@@ -4,6 +4,7 @@ import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { mimeType } from '../../posts/create-post/mime-type.validator';
 import { ProfileService } from '../../services/profile.service';
 import { Profile } from '../profile.model';
+import { ToastrService } from 'ngx-toastr';
 // import { Event } from '@angular/router';
 
 
@@ -23,7 +24,8 @@ export class CreateProfileComponent implements OnInit {
   private profileId!: string;
   constructor(private profileService: ProfileService
     , private router: Router,
-    public route: ActivatedRoute) { }
+    public route: ActivatedRoute,
+    private toastr:ToastrService) { }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((paramMap: ParamMap) => {
@@ -131,6 +133,7 @@ export class CreateProfileComponent implements OnInit {
         this.form.value.bio,
         this.form.value.image
       );
+       this.toastr.success('Profile created successfully!');
     }
     else {
       this.profileService.updateProfile(
@@ -139,6 +142,7 @@ export class CreateProfileComponent implements OnInit {
         this.form.value.bio,
         this.form.value.image
       );
+       this.toastr.success('Profile updated successfully!');
     }
     this.form.reset();
   }

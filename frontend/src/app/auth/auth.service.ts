@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, catchError, tap, throwError } from 'rxjs';
 import { ProfileService } from '../services/profile.service';
 import { AuthData } from './user.model';
 
@@ -40,52 +40,96 @@ export class AuthService {
   }
 
 
-  login(email: string, password: string) {
-    const authData: AuthData = { email: email, password: password };
-    this.http
-      .post<{ token: string; expiresIn: number, userId: string }>(
-        BACKEND_URL + "login",
-        authData
-      )
-      .subscribe(response => {
+  // login(email: string, password: string) {
+  //   const authData: AuthData = { email: email, password: password };
+  //   this.http
+  //     .post<{ token: string; expiresIn: number, userId: string }>(
+  //       BACKEND_URL + "login",
+  //       authData
+  //     )
+  //     .subscribe(response => {
 
-        this.err.next(null)
+  //       this.err.next(null)
 
-        const token = response.token;
-        this.token = token;
-        if (token) {
-          const expiresInDuration = response.expiresIn;
-          this.setAuthTimer(expiresInDuration);
-          this.isAuthenticated = true;
-          this.userId = response.userId;
-          this.authStatusListener.next(true);
-          const now = new Date();
-          const expirationDate = new Date(now.getTime() + expiresInDuration * 1000);
+  //       const token = response.token;
+  //       this.token = token;
+  //       if (token) {
+  //         const expiresInDuration = response.expiresIn;
+  //         this.setAuthTimer(expiresInDuration);
+  //         this.isAuthenticated = true;
+  //         this.userId = response.userId;
+  //         this.authStatusListener.next(true);
+  //         const now = new Date();
+  //         const expirationDate = new Date(now.getTime() + expiresInDuration * 1000);
 
-          this.saveAuthData(token, expirationDate, this.userId);
-          this.router.navigate(["/"]);
-        }
-      },
-        err => {
-          this.err.next(err)
-        });
-  }
+  //         this.saveAuthData(token, expirationDate, this.userId);
+  //         this.router.navigate(["/"]);
+  //       }
+  //     },
+  //       err => {
+  //         this.err.next(err)
+  //       });
+  // }
 
 
-  signupUser(email: string, password: string) {
-    const authData: AuthData = { email: email, password: password };
-    this.http
-      .post(BACKEND_URL + "signup", authData)
-      .subscribe(response => {
-        this.err.next(null)
+  // signupUser(email: string, password: string) {
+  //   const authData: AuthData = { email: email, password: password };
+  //   this.http
+  //     .post(BACKEND_URL + "signup", authData)
+  //     .subscribe(response => {
+  //       this.err.next(null)
+  //       this.router.navigate(["/"]);
+
+  //     },
+  //       err => {
+  //         this.err.next(err)
+  //       });
+  // }
+
+  login(email: string, password: string): Observable<any> {
+  const authData: AuthData = { email: email, password: password };
+  return this.http.post<{ token: string; expiresIn: number; userId: string }>(
+    BACKEND_URL + "login",
+    authData
+  ).pipe(
+    tap(response => {
+      this.err.next(null);
+
+      const token = response.token;
+      this.token = token;
+      if (token) {
+        const expiresInDuration = response.expiresIn;
+        this.setAuthTimer(expiresInDuration);
+        this.isAuthenticated = true;
+        this.userId = response.userId;
+        this.authStatusListener.next(true);
+        const now = new Date();
+        const expirationDate = new Date(now.getTime() + expiresInDuration * 1000);
+
+        this.saveAuthData(token, expirationDate, this.userId);
         this.router.navigate(["/"]);
+      }
+    }),
+    catchError(err => {
+      this.err.next(err);
+      return throwError(err);
+    })
+  );
+}
 
-      },
-        err => {
-          this.err.next(err)
-        });
-  }
-
+signupUser(email: string, password: string): Observable<any> {
+  const authData: AuthData = { email: email, password: password };
+  return this.http.post(BACKEND_URL + "signup", authData).pipe(
+    tap(response => {
+      this.err.next(null);
+      this.router.navigate(["/"]);
+    }),
+    catchError(err => {
+      this.err.next(err);
+      return throwError(err);
+    })
+  );
+}
 
 
   logout() {
@@ -102,11 +146,6 @@ forgotPassword(email: string) {
     const body = { email };
     return this.http.post(url, body);
 }
-
-// resetPassword(token: string, password: string): Observable<any> {
-//   const resetData = { token: token, password: password };
-//   return this.http.patch(BACKEND_URL + 'resetPassword', resetData);
-// }
 
 resetPassword(token: string, password: string) {
   const url = BACKEND_URL + 'resetPassword/' + token;

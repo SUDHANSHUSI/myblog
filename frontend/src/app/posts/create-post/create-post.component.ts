@@ -6,7 +6,6 @@
 // import { PostService } from '../../services/post.service';
 // import { ProfileService } from 'src/app/services/profile.service';
 
-
 // @Component({
 //   selector: 'app-create-post',
 //   templateUrl: './create-post.component.html',
@@ -48,7 +47,7 @@
 //   getPostById(id:string) {
 //     this.isLoading=true
 //     this.ps.getPost(id).subscribe(postData => {
-    
+
 //       this.post = {
 //         id: postData._id,
 //         title: postData.title,
@@ -137,60 +136,60 @@ import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { mimeType } from './mime-type.validator';
 import { PostService } from '../../services/post.service';
 import { ProfileService } from 'src/app/services/profile.service';
-
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-create-post',
   templateUrl: './create-post.component.html',
-  styleUrls: ['./create-post.component.css']
+  styleUrls: ['./create-post.component.css'],
 })
 export class CreatePostComponent implements OnInit {
-
   postdate!: Date;
   fetchedDat!: Date;
   form!: FormGroup;
   isLoading: boolean = false;
   imagePreview!: string;
   post!: Post;
-  private mode = "create";
-  private postId: string='';
+  private mode = 'create';
+  private postId: string = '';
   constructor(
     private ps: PostService,
     public route: ActivatedRoute,
     public profileService: ProfileService,
     private router: Router,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit(): void {
     this.checkProfileCreated();
     this.route.paramMap.subscribe((paramMap: ParamMap) => {
-      if (paramMap.has("postId")) {
-        this.mode = "edit";
-        this.postId = paramMap.get("postId") as string;
+      if (paramMap.has('postId')) {
+        this.mode = 'edit';
+        this.postId = paramMap.get('postId') as string;
         this.getPostById(this.postId);
       } else {
-        this.mode = "create";
+        this.mode = 'create';
         this.postId = '';
       }
     });
     this.createForm();
   }
 
-  getPostById(id:any) {
+  getPostById(id: any) {
     this.isLoading = true;
-    this.ps.getPost(id).subscribe(postData => {
+    this.ps.getPost(id).subscribe((postData) => {
       this.post = {
         id: postData._id,
         title: postData.title,
         content: postData.content,
         imagePath: postData.imagePath,
-        creator: postData.creator
+        creator: postData.creator,
       };
       this.imagePreview = postData.imagePath;
       this.form.setValue({
         title: this.post.title,
         content: this.post.content,
-        image: this.post.imagePath
+        image: this.post.imagePath,
       });
       this.isLoading = false;
     });
@@ -199,13 +198,13 @@ export class CreatePostComponent implements OnInit {
   createForm() {
     this.form = new FormGroup({
       title: new FormControl(null, {
-        validators: [Validators.required, Validators.minLength(3)]
+        validators: [Validators.required, Validators.minLength(3)],
       }),
       content: new FormControl(null, { validators: [Validators.required] }),
       image: new FormControl(null, {
         validators: [Validators.required],
-        asyncValidators: [mimeType]
-      })
+        asyncValidators: [mimeType],
+      }),
     });
   }
 
@@ -215,10 +214,10 @@ export class CreatePostComponent implements OnInit {
       const file = fileInput.files[0];
       this.form.patchValue({ image: file });
       // this.form.get("image").updateValueAndValidity();
-      const imageControl = this.form.get("image");
-    if (imageControl) {
-      imageControl.updateValueAndValidity();
-    }
+      const imageControl = this.form.get('image');
+      if (imageControl) {
+        imageControl.updateValueAndValidity();
+      }
       const reader = new FileReader();
       reader.onload = () => {
         this.imagePreview = reader.result as string;
@@ -233,13 +232,14 @@ export class CreatePostComponent implements OnInit {
       return;
     }
     this.isLoading = true;
-    if (this.mode === "create") {
+    if (this.mode === 'create') {
       this.ps.addPost(
         this.form.value.title,
         this.form.value.content,
         this.form.value.image,
         this.postdate
       );
+       this.toastr.success('Post created successfully!');
     } else {
       this.ps.updatePost(
         this.postId,
@@ -247,19 +247,20 @@ export class CreatePostComponent implements OnInit {
         this.form.value.content,
         this.form.value.image
       );
+       this.toastr.success('Post updated successfully!');
     }
     this.form.reset();
   }
 
   checkProfileCreated() {
     this.profileService.getProfileByCreatorId().subscribe(
-      profile => {
+      (profile) => {
         if (!profile) {
-          this.router.navigate(["/profile"]);
+          this.router.navigate(['/profile']);
         }
       },
-      e => {
-        this.router.navigate(["/profile"]);
+      (e) => {
+        this.router.navigate(['/profile']);
       }
     );
   }
