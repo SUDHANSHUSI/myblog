@@ -1,6 +1,9 @@
-const express = require('express')
-const Post = require('../models/post')
-const router = new express.Router()
+const express = require('express');
+const Post = require('../models/post');
+const Like = require("../models/like");
+const Dislike = require("../models/dislike");
+const Comment =require('../models/comment');
+const router =express.Router()
 const multer = require("multer");
 const checkAuth = require("../middlewares/check-auth");
 
@@ -181,6 +184,152 @@ router.put(
 });
  
 
+//////////////////////////////////////////////// LIKE /////////////////////////////////////////////////////////
+
+router.post("/like/:postid", checkAuth, async (req, res, next) => {
+  const postId = req.params.postid;
+
+  try {
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    await Dislike.findOneAndDelete({
+      user_id: req.userData.userId,
+      post_id: postId,
+    });
+
+    const existingLike = await Like.findOne({
+      user_id: req.userData.userId,
+      post_id: postId,
+    });
+
+    if (existingLike) {
+      return res.status(400).json({ error: "You have already liked the post" });
+    }
+
+    const newLike = new Like({
+      user_id: req.userData.userId,
+      post_id: postId,
+    });
+
+    const savedLike = await newLike.save();
+    if (savedLike) {
+      return res.json({ message: "Post liked successfully" });
+    } else {
+      return res.status(500).json({ error: "Failed to like the post" });
+    }
+  } catch (error) {
+    return res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+
+
+/////////////////////////////////////////////////////// DISLIKE //////////////////////////////////////////////////////////
+
+router.post("/dislike/:postid", checkAuth, async (req, res, next) => {
+  const postId = req.params.postid;
+
+  try {
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    await Like.findOneAndDelete({
+      user_id: req.userData.userId,
+      post_id: postId,
+    });
+
+    const existingDislike = await Dislike.findOne({
+      user_id: req.userData.userId,
+      post_id: postId,
+    });
+
+    if (existingDislike) {
+      return res.status(400).json({ error: "You have already disliked the post" });
+    }
+
+    const newDislike = new Dislike({
+      user_id: req.userData.userId,
+      post_id: postId,
+    });
+
+    const savedDislike = await newDislike.save();
+    if (savedDislike) {
+      return res.json({ message: "Post disliked successfully" });
+    } else {
+      return res.status(500).json({ error: "Failed to dislike the post" });
+    }
+  } catch (error) {
+    return res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+///////////////////////////////////////////////GET ALL LIKES////////////////////////////////////////////////////////////
+
+router.get("/likes/:postid", async (req, res, next) => {
+  const postId = req.params.postid;
+
+  try {
+    const likes = await Like.find({ post_id: postId });
+    const totalLikes= likes.length;
+    res.json({totalLikes, likes });
+  } catch (error) {
+    return res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+/////////////////////////////////////////////////// GET ALL DISLIKES //////////////////////////////////////////////////
+
+router.get("/dislikes/:postid", async (req, res, next) => {
+  const postId = req.params.postid;
+
+  try {
+    const dislikes = await Dislike.find({ post_id: postId });
+    const totalDislikes = dislikes.length;
+    res.json({ totalDislikes,dislikes });
+  } catch (error) {
+    return res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
+/////////////////////////////////////////////////////CREATE COMMENT/////////////////////////////////////////////////////////
+router.post("/comment/:postid", checkAuth, async (req, res, next) => {
+  const postId = req.params.postid;
+  const post = await Post.findById(postId);
+
+  if (!post) {
+    return "Post does not exists";
+  }
+
+  const addComment = new Comment({
+    user_id: req.userData.userId,
+    post_id: post.id,
+    comment: req.body.comment,
+  });
+  const created = await addComment.save();
+
+  if (created) {
+    res.json({
+      msg: "Comment Added Successfully",
+    });
+  } else {
+    return "Something went wrong", 500;
+  }
+});
+
+///////////////////////////////////////////////////////GET ALL COMMENTS ////////////////////////////////////////////////////
+
+router.get("/comment/getAllComments", async (req, res, next) => {
+  const comments = await Comment.find();
+  res.status(200).json({
+    numberOfComments: comments.length,
+    comments,
+  });
+});
 
 
 module.exports = router
