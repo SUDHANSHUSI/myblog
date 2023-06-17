@@ -1,6 +1,6 @@
 const path = require("path");
 const express = require("express")
-// const mongoose = require("mongoose")
+const mongoose = require("mongoose")
 const db = require("./db/db")
 const header_middleware = require("./middlewares/header")
 

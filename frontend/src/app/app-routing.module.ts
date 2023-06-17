@@ -12,12 +12,12 @@ import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.
 import { ResetPasswordComponent } from './auth/reset-password/reset-password.component';
 
 const routes: Routes = [
+  { path: '', component: PostListComponent },
+  { path: 'myposts', component: MypostsComponent, canActivate: [AuthGuard] },
+  { path: 'create', component: CreatePostComponent, canActivate: [AuthGuard] },
   { path: 'login', component: LoginComponent },
   { path: 'forgotPassword', component: ForgotPasswordComponent },
   { path: 'reset-password/:token', component: ResetPasswordComponent },
-  { path: 'create', component: CreatePostComponent, canActivate: [AuthGuard] },
-  { path: '', component: PostListComponent },
-  { path: 'myposts', component: MypostsComponent, canActivate: [AuthGuard] },
   {
     path: 'myposts/:postId',
     component: PostDetailComponent,

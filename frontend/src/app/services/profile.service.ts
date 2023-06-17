@@ -95,7 +95,7 @@ export class ProfileService {
     this.http.get<{ profile: any, message: string }>
     (BACKEND_URL + "/viewprofile")
       .subscribe(profile => {
-
+        console.log(profile)
         let prof = profile.profile
         this.profile = prof
         this.isProfileSet = true

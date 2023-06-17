@@ -94,19 +94,22 @@ export class AuthService {
   ).pipe(
     tap(response => {
       this.err.next(null);
-
+      
       const token = response.token;
       this.token = token;
       if (token) {
+      
         const expiresInDuration = response.expiresIn;
-        this.setAuthTimer(expiresInDuration);
+        // console.log(expiresInDuration);
+        // this.setAuthTimer(expiresInDuration);
         this.isAuthenticated = true;
         this.userId = response.userId;
         this.authStatusListener.next(true);
         const now = new Date();
         const expirationDate = new Date(now.getTime() + expiresInDuration * 1000);
+        // console.log(expirationDate);
 
-        this.saveAuthData(token, expirationDate, this.userId);
+        this.saveAuthData(token, expirationDate, this.userId)
         this.router.navigate(["/"]);
       }
     }),
@@ -194,12 +197,14 @@ resetPassword(token: string, password: string) {
       this.logout();
     }, duration * 1000);
   }
-
+ 
   private saveAuthData(token: string, expirationDate: Date, userId: string) {
+    console.log(token,expirationDate);
+    
     this.profileService.getProfile()
-    localStorage.setItem("token", token);
-    localStorage.setItem("expiration", expirationDate.toISOString());
-    localStorage.setItem("userId", userId);
+    localStorage.setItem("token", JSON.stringify(token));
+    localStorage.setItem("expiration", JSON.stringify(expirationDate.toISOString()));
+    localStorage.setItem("userId", JSON.stringify(userId));
   }
 
 

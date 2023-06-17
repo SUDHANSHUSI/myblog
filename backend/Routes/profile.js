@@ -140,7 +140,7 @@ router.get("/viewprofile", checkAuth, async (req, res, next) => {
         message: "Profile fetched successfully!",
         profile: prof,
       });
-    } else {
+    } else  {
       res.status(404).json({ message: "Profile not found!" });
     }
   } catch (error) {
