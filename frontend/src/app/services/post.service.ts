@@ -50,6 +50,9 @@ export class PostService {
               imagePath: post.imagePath,
               creator: post.creator,
               postDate: post.postDate,
+              likes:post.likes,
+              dislikes:post.dislikes,
+              comments:post.comments,
             };
           });
         })
@@ -66,6 +69,47 @@ export class PostService {
         }
       );
   }
+  
+    toggleLike(postId: string, userId: string) {
+    const url = `${BACKEND_URL}/${postId}/toggle-like`;
+    this.http
+      .post<Post>(url, { userId })
+      .subscribe(
+        (post) => {
+          const index = this.posts.findIndex((p) => p.id === post.id);
+          if (index !== -1) {
+            this.posts[index] = post;
+            this.postsUpdated.next([...this.posts]);
+          }
+          this.err.next(null);
+        },
+        (err) => {
+          this.err.next(err);
+        }
+      );
+  }
+
+  addComment(postId: string, content: string, userId: string) {
+    const url = `${BACKEND_URL}/${postId}/comment`;
+    const commentData = { content, userId };
+
+    this.http
+      .post<Post>(url, commentData)
+      .subscribe(
+        (post) => {
+          const index = this.posts.findIndex((p) => p.id === post.id);
+          if (index !== -1) {
+            this.posts[index] = post;
+            this.postsUpdated.next([...this.posts]);
+          }
+          this.err.next(null);
+        },
+        (err) => {
+          this.err.next(err);
+        }
+      );
+  }
+
 
   getPost(id: string) {
     return this.http.get<{

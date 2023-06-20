@@ -1,38 +1,34 @@
-const express = require('express');
-const Post = require('../models/post');
-const router =express.Router()
+const express = require("express");
+const Post = require("../models/post");
+const router = express.Router();
 const multer = require("multer");
 const checkAuth = require("../middlewares/check-auth");
 
 const MIME_TYPE_MAP = {
-    "image/png": "png",
-    "image/jpeg": "jpg",
-    "image/jpg": "jpg",
-    "image/gif": "gif"
+  "image/png": "png",
+  "image/jpeg": "jpg",
+  "image/jpg": "jpg",
+  "image/gif": "gif",
 };
 
 //////////////////////////////////////////////////// MULTER ///////////////////////////////////////////////////////////////
 
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const isValid = MIME_TYPE_MAP[file.mimetype];
+  destination: (req, file, cb) => {
+    const isValid = MIME_TYPE_MAP[file.mimetype];
 
-        let error = new Error("Invalid mime type");
-        if (isValid) {
-            error = null;
-        }
-        cb(error, "images");
-    },
-    filename: (req, file, cb) => {
-        const name = file.originalname
-            .toLowerCase()
-            .split(" ")
-            .join("-");
-        const ext = MIME_TYPE_MAP[file.mimetype];
-        cb(null, name + "-" + Date.now() + "." + ext);
+    let error = new Error("Invalid mime type");
+    if (isValid) {
+      error = null;
     }
+    cb(error, "images");
+  },
+  filename: (req, file, cb) => {
+    const name = file.originalname.toLowerCase().split(" ").join("-");
+    const ext = MIME_TYPE_MAP[file.mimetype];
+    cb(null, name + "-" + Date.now() + "." + ext);
+  },
 });
-
 
 //////////////////////////////////////////////// CREATE POST ////////////////////////////////////////////////////////////////
 
@@ -55,7 +51,7 @@ router.post(
 
       if (savedPost) {
         res.status(201).json({
-          message: "Post added successfully",   
+          message: "Post added successfully",
           post: {
             ...savedPost._doc,
             id: savedPost._id,
@@ -88,7 +84,6 @@ router.get("/mypost", checkAuth, async (req, res, next) => {
     res.status(500).json({ message: "Error fetching posts" });
   }
 });
-
 
 ////////////////////////////////////////////////// GET ALL POSTS ///////////////////////////////////////////////////////////
 
@@ -144,7 +139,7 @@ router.put(
         title: req.body.title,
         content: req.body.content,
         imagePath: imagePath,
-        creator: req.userData.userId
+        creator: req.userData.userId,
       };
 
       const updatedPost = await Post.findByIdAndUpdate(
@@ -154,9 +149,13 @@ router.put(
       );
 
       if (updatedPost) {
-        res.status(200).json({ message: "Update successful!", post: updatedPost });
+        res
+          .status(200)
+          .json({ message: "Update successful!", post: updatedPost });
       } else {
-        res.status(404).json({ message: "Post not found or you are not authorized to update it" });
+        res.status(404).json({
+          message: "Post not found or you are not authorized to update it",
+        });
       }
     } catch (error) {
       res.status(500).json({ message: "Error updating post" });
@@ -165,168 +164,183 @@ router.put(
 );
 
 ///////////////////////////////////////////////////// DELETE POST BY ID ////////////////////////////////////////////////
-  
 
- router.delete("/:id", checkAuth, async (req, res, next) => {
+router.delete("/:id", checkAuth, async (req, res, next) => {
   try {
-    const deletedPost = await Post.findByIdAndDelete({ _id: req.params.id, creator: req.userData.userId });
+    const deletedPost = await Post.findByIdAndDelete({
+      _id: req.params.id,
+      creator: req.userData.userId,
+    });
     if (deletedPost) {
       res.status(200).json({ message: "Post deleted successfully" });
     } else {
-      res.status(404).json({ message: "Post not found or you are not authorized to delete it" });
+      res.status(404).json({
+        message: "Post not found or you are not authorized to delete it",
+      });
     }
   } catch (error) {
-    res.status(500).json({ message: "An error occurred while deleting the post" });
+    res
+      .status(500)
+      .json({ message: "An error occurred while deleting the post" });
   }
 });
- 
 
 // //////////////////////////////////////////////// LIKE /////////////////////////////////////////////////////////
-
-// router.post("/like/:postid", checkAuth, async (req, res, next) => {
-//   const postId = req.params.postid;
-
-//   try {
-//     const post = await Post.findById(postId);
-//     if (!post) {
-//       return res.status(404).json({ error: "Post not found" });
-//     }
-
-//     await Dislike.findOneAndDelete({
-//       user_id: req.userData.userId,
-//       post_id: postId,
-//     });
-
-//     const existingLike = await Like.findOne({
-//       user_id: req.userData.userId,
-//       post_id: postId,
-//     });
-
-//     if (existingLike) {
-//       return res.status(400).json({ error: "You have already liked the post" });
-//     }
-
-//     const newLike = new Like({
-//       user_id: req.userData.userId,
-//       post_id: postId,
-//     });
-
-//     const savedLike = await newLike.save();
-//     if (savedLike) {
-//       return res.json({ message: "Post liked successfully" });
-//     } else {
-//       return res.status(500).json({ error: "Failed to like the post" });
-//     }
-//   } catch (error) {
-//     return res.status(500).json({ error: "Something went wrong" });
-//   }
-// });
-
-
-
-// /////////////////////////////////////////////////////// DISLIKE //////////////////////////////////////////////////////////
-
-// router.post("/dislike/:postid", checkAuth, async (req, res, next) => {
-//   const postId = req.params.postid;
+// Like a post
+// router.put("/:postId/like", checkAuth, async (req, res) => {
+//   const postId = req.params.postId;
+//   const userId = req.userData.userId; // Assuming you have user authentication middleware
 
 //   try {
 //     const post = await Post.findById(postId);
 //     if (!post) {
-//       return res.status(404).json({ error: "Post not found" });
+//       return res.status(404).json({ message: "Post not found" });
 //     }
 
-//     await Like.findOneAndDelete({
-//       user_id: req.userData.userId,
-//       post_id: postId,
-//     });
-
-//     const existingDislike = await Dislike.findOne({
-//       user_id: req.userData.userId,
-//       post_id: postId,
-//     });
-
-//     if (existingDislike) {
-//       return res.status(400).json({ error: "You have already disliked the post" });
+//     if (post.likes.includes(userId)) {
+//       return res.status(400).json({ message: "Post already liked" });
+//     }
+//        // Remove user from dislikes array if already present
+//     if (post.dislikes.includes(userId)) {
+//       post.dislikes.pull(userId);
 //     }
 
-//     const newDislike = new Dislike({
-//       user_id: req.userData.userId,
-//       post_id: postId,
-//     });
+//     post.likes.push(userId);
+//     await post.save();
 
-//     const savedDislike = await newDislike.save();
-//     if (savedDislike) {
-//       return res.json({ message: "Post disliked successfully" });
-//     } else {
-//       return res.status(500).json({ error: "Failed to dislike the post" });
-//     }
+//     res.status(200).json({ message: "Post liked successfully" });
 //   } catch (error) {
-//     return res.status(500).json({ error: "Something went wrong" });
+//     res.status(500).json({ message: "Internal server error" });
 //   }
 // });
 
-// ///////////////////////////////////////////////GET ALL LIKES////////////////////////////////////////////////////////////
-
-// router.get("/likes/:postid", async (req, res, next) => {
-//   const postId = req.params.postid;
+// // Dislike a post
+// router.put("/:postId/dislike", checkAuth, async (req, res) => {
+//   const postId = req.params.postId;
+//   const userId = req.userData.userId; // Assuming you have user authentication middleware
 
 //   try {
-//     const likes = await Like.find({ post_id: postId });
-//     const totalLikes= likes.length;
-//     res.json({totalLikes, likes });
+//     const post = await Post.findById(postId);
+//     if (!post) {
+//       return res.status(404).json({ message: "Post not found" });
+//     }
+
+//     if (post.dislikes.includes(userId)) {
+//       return res.status(400).json({ message: "Post already disliked" });
+//     }
+
+//        // Remove user from likes array if already present
+//     if (post.likes.includes(userId)) {
+//       post.likes.pull(userId);
+//     }
+//     post.dislikes.push(userId);
+//     await post.save();
+
+//     res.status(200).json({ message: "Post disliked successfully" });
 //   } catch (error) {
-//     return res.status(500).json({ error: "Something went wrong" });
+//     res.status(500).json({ message: "Internal server error" });
 //   }
 // });
 
-// /////////////////////////////////////////////////// GET ALL DISLIKES //////////////////////////////////////////////////
-
-// router.get("/dislikes/:postid", async (req, res, next) => {
-//   const postId = req.params.postid;
+// // Comment on a post
+// router.post("/:postId/comment", checkAuth, async (req, res) => {
+//   const postId = req.params.postId;
+//   const { content } = req.body;
+//   const userId = req.userData.userId; // Assuming you have user authentication middleware
 
 //   try {
-//     const dislikes = await Dislike.find({ post_id: postId });
-//     const totalDislikes = dislikes.length;
-//     res.json({ totalDislikes,dislikes });
+//     const post = await Post.findById(postId);
+//     if (!post) {
+//       return res.status(404).json({ message: "Post not found" });
+//     }
+
+//     const comment = {
+//       content,
+//       user: userId,
+//     };
+//     const newComment = await post.comments.create(comment);
+//     post.comments.push(newComment);
+//     await post.save();
+
+//     res
+//       .status(200)
+//       .json({ message: "Comment added successfully", comment: newComment });
 //   } catch (error) {
-//     return res.status(500).json({ error: "Something went wrong" });
+//     res.status(500).json({ message: "Internal server error" });
 //   }
 // });
 
-// /////////////////////////////////////////////////////CREATE COMMENT/////////////////////////////////////////////////////////
-// router.post("/comment/:postid", checkAuth, async (req, res, next) => {
-//   const postId = req.params.postid;
-//   const post = await Post.findById(postId);
+// router.delete("/:postId/comment/:commentId", async (req, res, next) => {
+//   try {
+//     const postId = req.params.postId;
+//     const commentId = req.params.commentId;
 
-//   if (!post) {
-//     return "Post does not exists";
-//   }
+//     const post = await Post.findById(postId);
+//     if (!post) {
+//       return res.status(404).json({ message: "Post not found" });
+//     }
 
-//   const addComment = new Comment({
-//     user_id: req.userData.userId,
-//     post_id: post.id,
-//     comment: req.body.comment,
-//   });
-//   const created = await addComment.save();
+//     const commentIndex = post.comments.findIndex(
+//       (comment) => comment._id.toString() === commentId
+//     );
 
-//   if (created) {
-//     res.json({
-//       msg: "Comment Added Successfully",
-//     });
-//   } else {
-//     return "Something went wrong", 500;
+//     if (commentIndex === -1) {
+//       return res.status(404).json({ message: "Comment not found" });
+//     }
+
+//     post.comments.splice(commentIndex, 1);
+//     await post.save();
+
+//     res.status(200).json({ message: "Comment deleted successfully" });
+//   } catch (error) {
+//     res.status(500).json({ message: "Deleting comment failed" });
 //   }
 // });
 
-// ///////////////////////////////////////////////////////GET ALL COMMENTS ////////////////////////////////////////////////////
+router.post("/:postId/toggle-like", checkAuth, async (req, res) => {
+  const { postId } = req.params;
+  const { userId } = req.body;
 
-// router.get("/comment/getAllComments", async (req, res, next) => {
-//   const comments = await Comment.find();
-//   res.status(200).json({
-//     numberOfComments: comments.length,
-//     comments,
-//   });
-// });
+  try {
+    const post = await Post.findById(postId);
+    const userLiked = post.likes.includes(userId);
+    const userDisliked = post.dislikes.includes(userId);
 
+    if (userLiked) {
+      // User already liked, remove the like
+      post.likes.pull(userId);
+    } else if (userDisliked) {
+      // User already disliked, remove the dislike and add like
+      post.dislikes.pull(userId);
+      post.likes.push(userId);
+    } else {
+      // User didn't like or dislike, add like
+      post.likes.push(userId);
+    }
 
-module.exports = router
+    await post.save();
+    res.status(200).json(post);
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ error: "Failed to toggle like/dislike on the post." });
+  }
+});
+
+// Comment on a post
+router.post("/:postId/comment", checkAuth, async (req, res) => {
+  const { postId } = req.params;
+  const { content, userId } = req.body;
+
+  try {
+    const post = await Post.findById(postId);
+    post.comments.unshift({ content, user: userId });
+    await post.save();
+    res.status(200).json(post);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to add comment to the post." });
+  }
+});
+module.exports = router;

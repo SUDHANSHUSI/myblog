@@ -51,3 +51,17 @@
   max-width: 100%;
   height: auto;
 }
+
+
+.like-icon {
+  position: relative;
+  color: black; /* Default color */
+}
+
+.like-icon.liked::after {
+  content: "\e87d"; /* Unicode of filled heart icon */
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: red; /* Color when liked */
+}

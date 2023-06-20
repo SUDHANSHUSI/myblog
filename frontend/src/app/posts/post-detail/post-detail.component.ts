@@ -10,106 +10,112 @@ import { Post } from '../post.model';
 @Component({
   selector: 'app-post-detail',
   templateUrl: './post-detail.component.html',
-  styleUrls: ['./post-detail.component.css']
+  styleUrls: ['./post-detail.component.css'],
 })
 export class PostDetailComponent implements OnInit, OnDestroy {
-  isAuth:any
+  isAuth: any;
   isloading = false;
-  url!: string
-  error: any
+  url!: string;
+  error: any;
   postId!: string;
   post!: Post;
-  userId!: String;
-  userIsAuthenticated!: boolean
+  userId!: string;
+  userIsAuthenticated!: boolean;
   private authStatusSub!: Subscription;
-  profile: any
+  profile: any;
+  postLiked: boolean = false;
 
   constructor(
     public postsService: PostService,
     public route: ActivatedRoute,
     public router: Router,
     private authService: AuthService,
-    public profileService:ProfileService
-  ) { }
+    public profileService: ProfileService
+  ) {}
 
   ngOnInit(): void {
-    this.url = this.router.url.split("/")[1]
-    
-    this.authData()
-    this.getErrors()
+    this.url = this.router.url.split('/')[1];
+
+    this.authData();
+    this.getErrors();
 
     this.route.paramMap.subscribe((paramMap: ParamMap) => {
-
-      if (paramMap.has("postId")) {
-        this.postId = paramMap.get("postId")??'';
-        this.getPostById(this.postId)
+      if (paramMap.has('postId')) {
+        this.postId = paramMap.get('postId') ?? '';
+        this.getPostById(this.postId);
       }
-    })
+    });
   }
 
   authData() {
-    this.isAuth = this.authService.getIsAuth()
+    this.isAuth = this.authService.getIsAuth();
     this.userId = this.authService.getUserId();
+    this.userIsAuthenticated = this.isAuth;
     this.authStatusSub = this.authService
       .getAuthStatusListener()
-      .subscribe(isAuthenticated => {
+      .subscribe((isAuthenticated) => {
         this.userIsAuthenticated = isAuthenticated;
         this.userId = this.authService.getUserId();
       });
   }
   getErrors() {
-    this.error = null
-    this.postsService.err.subscribe(err => {
-      this.error = err
-      this.isloading = false
-
-    })
-
+    this.error = null;
+    this.postsService.err.subscribe((err) => {
+      this.error = err;
+      this.isloading = false;
+    });
   }
 
-  getPostById(id:string) {
-    this.isloading = true
-    this.postsService.getPost(this.postId).subscribe(postData => {
-      console.log(postData)
-      this.post = {
-        id: postData._id,
-        title: postData.title,
-        content: postData.content,
-        imagePath: postData.imagePath,
-        creator: postData.creator,
-        postDate:postData.postDate
-      };
-      this.getPostUserByCreatorId(postData.creator);
-      this.isloading = false;
-    },
-    e => {
-      this.isloading = false;
-      this.error = e;
-    }
-  );
-}
+  getPostById(id: string) {
+    this.isloading = true;
+    this.postsService.getPost(this.postId).subscribe(
+      (postData) => {
+        console.log(postData);
+        this.post = {
+          id: postData._id,
+          title: postData.title,
+          content: postData.content,
+          imagePath: postData.imagePath,
+          creator: postData.creator,
+          postDate: postData.postDate,
+        };
+        this.getPostUserByCreatorId(postData.creator);
+        this.isloading = false;
+      },
+      (e) => {
+        this.isloading = false;
+        this.error = e;
+      }
+    );
+  }
 
+  toggleLike(postId: string) {
+    this.postsService.toggleLike(postId, this.userId);
+     this.postLiked = !this.postLiked;
+  }
 
+  addComment(content: string) {
+    this.postsService.addComment(this.postId, content, this.userId);
+  }
 
   OnDelete(postId: string) {
-    this.postsService.deletePost(postId)
+    this.postsService.deletePost(postId);
   }
 
-
-
-  getPostUserByCreatorId(id:string) {
-    this.profileService.getPostUserByCreatorId(id).subscribe(profile => {
-      if (profile.profile) {
-        this.profile= profile.profile
-      }else{
+  getPostUserByCreatorId(id: string) {
+    this.profileService.getPostUserByCreatorId(id).subscribe(
+      (profile) => {
+        if (profile.profile) {
+          this.profile = profile.profile;
+        } else {
+        }
+      },
+      (e) => {
+        this.isloading = false;
       }
-    },e=>{
-      this.isloading = false
-    })
-
+    );
   }
   ngOnDestroy() {
-
     this.authStatusSub.unsubscribe();
   }
 }
