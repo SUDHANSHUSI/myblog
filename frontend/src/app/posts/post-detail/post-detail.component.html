@@ -99,33 +99,27 @@
         <hr />
 
         <p>{{ post.content }}</p>
-        <mat-icon
-          class="mat-icon like-icon"
-          [ngClass]="{ liked: postLiked }"
-          (click)="toggleLike(post.id)"
-          *ngIf="userIsAuthenticated"
-        >
-          favorite_border
-        </mat-icon>
-       <hr />
+        <div>
+          <button class="like-button" (click)="onLike(post.id)" >
+            <mat-icon class="like-icon" [class.liked]="isLiked">favorite_border</mat-icon>
+          </button>
+          <span>{{ post.likeCount }}</span>
+        </div>
 
-        <!-- Comment Form -->
-        <form
-          (ngSubmit)="addComment(commentContent.value)"
-          *ngIf="userIsAuthenticated"
-        >
-          <div class="form-group">
-            <label for="commentContent">Add a comment:</label>
-            <textarea
-              class="form-control"
-              rows="3"
-              id="commentContent"
-              required
-              #commentContent
-            ></textarea>
-          </div>
-          <button type="submit" class="btn btn-primary">Submit Comment</button>
-        </form>
+        <div>
+          <mat-form-field appearance="outline">
+            <mat-label>Add Comment</mat-label>
+            <input matInput [(ngModel)]="comment" name="comment" />
+          </mat-form-field>
+          <br>
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="onAddComment(post.id, comment)"
+          >
+            Add Comment
+          </button>
+        </div>
       </div>
     </div>
   </div>

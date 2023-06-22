@@ -17,7 +17,7 @@ export class ViewProfileComponent implements OnInit {
   profile!: Profile;
   posts: Post[] = [];
   url: any;
-  userId!: string;
+  userId!: string ;
   constructor(
     private profileService: ProfileService,
     private authService: AuthService,

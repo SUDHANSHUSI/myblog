@@ -4,13 +4,13 @@ export interface Post {
   content: string;
   imagePath: string;
   creator: string;
-  postDate?: Date;
-  likes?: string[];
-  dislikes?: string[];
-  comments?: Comment[];
+  postDate?: string;
+  likes: string[];
+  comments: Comment[];
+  likeCount: number;
 }
+
 export interface Comment {
-  content: string;
   user: string;
-  createdAt?: Date; // Optional property for storing the comment creation date
+  comment: string;
 }

@@ -36,7 +36,7 @@ router.post(
   "",
   checkAuth,
   multer({ storage: storage }).single("image"),
-  async (req, res, next) => {
+  async (req, res) => {
     try {
       const url = req.protocol + "://" + req.get("host");
       const post = new Post({
@@ -68,7 +68,7 @@ router.post(
 
 /////////////////////////////////////////////////// GET MY POST ////////////////////////////////////////////////////////////
 
-router.get("/mypost", checkAuth, async (req, res, next) => {
+router.get("/mypost", checkAuth, async (req, res) => {
   try {
     const posts = await Post.find({ creator: req.userData.userId });
 
@@ -87,7 +87,7 @@ router.get("/mypost", checkAuth, async (req, res, next) => {
 
 ////////////////////////////////////////////////// GET ALL POSTS ///////////////////////////////////////////////////////////
 
-router.get("", async (req, res, next) => {
+router.get("", async (req, res) => {
   try {
     const documents = await Post.find();
 
@@ -106,7 +106,7 @@ router.get("", async (req, res, next) => {
 
 ////////////////////////////////////////////////// GET POST BY ID //////////////////////////////////////////////////////////
 
-router.get("/:id", async (req, res, next) => {
+router.get("/:id", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
 
@@ -126,7 +126,7 @@ router.put(
   "/:id",
   checkAuth,
   multer({ storage: storage }).single("image"),
-  async (req, res, next) => {
+  async (req, res) => {
     try {
       let imagePath = req.body.imagePath;
       if (req.file) {
@@ -165,7 +165,7 @@ router.put(
 
 ///////////////////////////////////////////////////// DELETE POST BY ID ////////////////////////////////////////////////
 
-router.delete("/:id", checkAuth, async (req, res, next) => {
+router.delete("/:id", checkAuth, async (req, res) => {
   try {
     const deletedPost = await Post.findByIdAndDelete({
       _id: req.params.id,
@@ -186,161 +186,210 @@ router.delete("/:id", checkAuth, async (req, res, next) => {
 });
 
 // //////////////////////////////////////////////// LIKE /////////////////////////////////////////////////////////
-// Like a post
-// router.put("/:postId/like", checkAuth, async (req, res) => {
-//   const postId = req.params.postId;
-//   const userId = req.userData.userId; // Assuming you have user authentication middleware
+
+// router.post("/like/:postid", checkAuth, async (req, res, next) => {
+//   const postId = req.params.postid;
 
 //   try {
 //     const post = await Post.findById(postId);
 //     if (!post) {
-//       return res.status(404).json({ message: "Post not found" });
+//       return res.status(404).json({ error: "Post not found" });
 //     }
 
-//     if (post.likes.includes(userId)) {
-//       return res.status(400).json({ message: "Post already liked" });
-//     }
-//        // Remove user from dislikes array if already present
-//     if (post.dislikes.includes(userId)) {
-//       post.dislikes.pull(userId);
+//     await Dislike.findOneAndDelete({
+//       user_id: req.userData.userId,
+//       post_id: postId,
+//     });
+
+//     const existingLike = await Like.findOne({
+//       user_id: req.userData.userId,
+//       post_id: postId,
+//     });
+
+//     if (existingLike) {
+//       return res.status(400).json({ error: "You have already liked the post" });
 //     }
 
-//     post.likes.push(userId);
-//     await post.save();
+//     const newLike = new Like({
+//       user_id: req.userData.userId,
+//       post_id: postId,
+//     });
 
-//     res.status(200).json({ message: "Post liked successfully" });
+//     const savedLike = await newLike.save();
+//     if (savedLike) {
+//       return res.json({ message: "Post liked successfully" });
+//     } else {
+//       return res.status(500).json({ error: "Failed to like the post" });
+//     }
 //   } catch (error) {
-//     res.status(500).json({ message: "Internal server error" });
+//     return res.status(500).json({ error: "Something went wrong" });
 //   }
 // });
 
-// // Dislike a post
-// router.put("/:postId/dislike", checkAuth, async (req, res) => {
-//   const postId = req.params.postId;
-//   const userId = req.userData.userId; // Assuming you have user authentication middleware
+// /////////////////////////////////////////////////////// DISLIKE //////////////////////////////////////////////////////////
+
+// router.post("/dislike/:postid", checkAuth, async (req, res, next) => {
+//   const postId = req.params.postid;
 
 //   try {
 //     const post = await Post.findById(postId);
 //     if (!post) {
-//       return res.status(404).json({ message: "Post not found" });
+//       return res.status(404).json({ error: "Post not found" });
 //     }
 
-//     if (post.dislikes.includes(userId)) {
-//       return res.status(400).json({ message: "Post already disliked" });
+//     await Like.findOneAndDelete({
+//       user_id: req.userData.userId,
+//       post_id: postId,
+//     });
+
+//     const existingDislike = await Dislike.findOne({
+//       user_id: req.userData.userId,
+//       post_id: postId,
+//     });
+
+//     if (existingDislike) {
+//       return res.status(400).json({ error: "You have already disliked the post" });
 //     }
 
-//        // Remove user from likes array if already present
-//     if (post.likes.includes(userId)) {
-//       post.likes.pull(userId);
-//     }
-//     post.dislikes.push(userId);
-//     await post.save();
+//     const newDislike = new Dislike({
+//       user_id: req.userData.userId,
+//       post_id: postId,
+//     });
 
-//     res.status(200).json({ message: "Post disliked successfully" });
+//     const savedDislike = await newDislike.save();
+//     if (savedDislike) {
+//       return res.json({ message: "Post disliked successfully" });
+//     } else {
+//       return res.status(500).json({ error: "Failed to dislike the post" });
+//     }
 //   } catch (error) {
-//     res.status(500).json({ message: "Internal server error" });
+//     return res.status(500).json({ error: "Something went wrong" });
 //   }
 // });
 
-// // Comment on a post
-// router.post("/:postId/comment", checkAuth, async (req, res) => {
-//   const postId = req.params.postId;
-//   const { content } = req.body;
-//   const userId = req.userData.userId; // Assuming you have user authentication middleware
+// ///////////////////////////////////////////////GET ALL LIKES////////////////////////////////////////////////////////////
+
+// router.get("/likes/:postid", async (req, res, next) => {
+//   const postId = req.params.postid;
 
 //   try {
-//     const post = await Post.findById(postId);
-//     if (!post) {
-//       return res.status(404).json({ message: "Post not found" });
-//     }
-
-//     const comment = {
-//       content,
-//       user: userId,
-//     };
-//     const newComment = await post.comments.create(comment);
-//     post.comments.push(newComment);
-//     await post.save();
-
-//     res
-//       .status(200)
-//       .json({ message: "Comment added successfully", comment: newComment });
+//     const likes = await Like.find({ post_id: postId });
+//     const totalLikes= likes.length;
+//     res.json({totalLikes, likes });
 //   } catch (error) {
-//     res.status(500).json({ message: "Internal server error" });
+//     return res.status(500).json({ error: "Something went wrong" });
 //   }
 // });
 
-// router.delete("/:postId/comment/:commentId", async (req, res, next) => {
+// /////////////////////////////////////////////////// GET ALL DISLIKES //////////////////////////////////////////////////
+
+// router.get("/dislikes/:postid", async (req, res, next) => {
+//   const postId = req.params.postid;
+
 //   try {
-//     const postId = req.params.postId;
-//     const commentId = req.params.commentId;
-
-//     const post = await Post.findById(postId);
-//     if (!post) {
-//       return res.status(404).json({ message: "Post not found" });
-//     }
-
-//     const commentIndex = post.comments.findIndex(
-//       (comment) => comment._id.toString() === commentId
-//     );
-
-//     if (commentIndex === -1) {
-//       return res.status(404).json({ message: "Comment not found" });
-//     }
-
-//     post.comments.splice(commentIndex, 1);
-//     await post.save();
-
-//     res.status(200).json({ message: "Comment deleted successfully" });
+//     const dislikes = await Dislike.find({ post_id: postId });
+//     const totalDislikes = dislikes.length;
+//     res.json({ totalDislikes,dislikes });
 //   } catch (error) {
-//     res.status(500).json({ message: "Deleting comment failed" });
+//     return res.status(500).json({ error: "Something went wrong" });
 //   }
 // });
 
-router.post("/:postId/toggle-like", checkAuth, async (req, res) => {
-  const { postId } = req.params;
-  const { userId } = req.body;
+// /////////////////////////////////////////////////////CREATE COMMENT/////////////////////////////////////////////////////////
+// router.post("/comment/:postid", checkAuth, async (req, res, next) => {
+//   const postId = req.params.postid;
+//   const post = await Post.findById(postId);
 
-  try {
-    const post = await Post.findById(postId);
-    const userLiked = post.likes.includes(userId);
-    const userDisliked = post.dislikes.includes(userId);
+//   if (!post) {
+//     return "Post does not exists";
+//   }
 
-    if (userLiked) {
-      // User already liked, remove the like
-      post.likes.pull(userId);
-    } else if (userDisliked) {
-      // User already disliked, remove the dislike and add like
-      post.dislikes.pull(userId);
-      post.likes.push(userId);
-    } else {
-      // User didn't like or dislike, add like
-      post.likes.push(userId);
-    }
+//   const addComment = new Comment({
+//     user_id: req.userData.userId,
+//     post_id: post.id,
+//     comment: req.body.comment,
+//   });
+//   const created = await addComment.save();
+
+//   if (created) {
+//     res.json({
+//       msg: "Comment Added Successfully",
+//     });
+//   } else {
+//     return "Something went wrong", 500;
+//   }
+// });
+
+// ///////////////////////////////////////////////////////GET ALL COMMENTS ////////////////////////////////////////////////////
+
+// router.get("/comment/getAllComments", async (req, res, next) => {
+//   const comments = await Comment.find();
+//   res.status(200).json({
+//     numberOfComments: comments.length,
+//     comments,
+//   });
+// });
+
+// Like or Unlike Post
+
+router.get("/:postId/likes", checkAuth, async (req, res) => {
+  const post = await Post.findById(req.params.postId);
+
+  if (!post) {
+    return "Post Not Found", 404;
+  }
+
+  if (post.likes.includes(req.userData.userId)) {
+    const index = post.likes.indexOf(req.userData.userId);
+
+    post.likes.splice(index, 1);
+    post.likeCount -= 1;
+    await post.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Post Unliked",
+      likeCount: post.likes.length,
+    });
+  } else {
+    post.likes.push(req.userData.userId);
+    post.likeCount += 1; // Increment like count
 
     await post.save();
-    res.status(200).json(post);
-  } catch (err) {
-    console.error(err);
-    res
-      .status(500)
-      .json({ error: "Failed to toggle like/dislike on the post." });
+
+    return res.status(200).json({
+      success: true,
+      message: "Post Liked",
+      likeCount: post.likes.length
+    });
   }
 });
 
-// Comment on a post
+// Add Comment
 router.post("/:postId/comment", checkAuth, async (req, res) => {
-  const { postId } = req.params;
-  const { content, userId } = req.body;
+  const post = await Post.findById(req.params.postId);
 
-  try {
-    const post = await Post.findById(postId);
-    post.comments.unshift({ content, user: userId });
-    await post.save();
-    res.status(200).json(post);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to add comment to the post." });
+  if (!post) {
+    return "Post Not Found", 404;
   }
+
+  if (post.comments.includes(req.userData.userId)) {
+    return "Already Commented", 500;
+  }
+
+  const newComment = {
+    user: req.userData.userId,
+    comment: req.body.comment,
+  };
+  post.comments.unshift(newComment);
+
+  await post.save();
+
+  return res.status(200).json({
+    success: true,
+    message: "Comment Added",
+    comment: newComment,
+  });
 });
+
 module.exports = router;

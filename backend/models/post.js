@@ -16,7 +16,7 @@ const postSchema = new mongoose.Schema({
   },
 
   postDate: {
-    type: Date,
+    type: String,
     required: true,
   },
 
@@ -31,29 +31,23 @@ const postSchema = new mongoose.Schema({
       ref: "User",
     },
   ],
-  dislikes: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-  ],
   comments: [
     {
-      content: {
-        type: String,
-        required: true,
-      },
       user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        // required: true,
       },
-      createdAt: {
-        type: Date,
-        default: Date.now,
+      comment: {
+        type: String,
+        required: true,
+        trim: true,
       },
     },
   ],
+  likeCount: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Post = new mongoose.model("Post", postSchema);

@@ -39,53 +39,6 @@ export class AuthService {
     return this.authStatusListener.asObservable();
   }
 
-
-  // login(email: string, password: string) {
-  //   const authData: AuthData = { email: email, password: password };
-  //   this.http
-  //     .post<{ token: string; expiresIn: number, userId: string }>(
-  //       BACKEND_URL + "login",
-  //       authData
-  //     )
-  //     .subscribe(response => {
-
-  //       this.err.next(null)
-
-  //       const token = response.token;
-  //       this.token = token;
-  //       if (token) {
-  //         const expiresInDuration = response.expiresIn;
-  //         this.setAuthTimer(expiresInDuration);
-  //         this.isAuthenticated = true;
-  //         this.userId = response.userId;
-  //         this.authStatusListener.next(true);
-  //         const now = new Date();
-  //         const expirationDate = new Date(now.getTime() + expiresInDuration * 1000);
-
-  //         this.saveAuthData(token, expirationDate, this.userId);
-  //         this.router.navigate(["/"]);
-  //       }
-  //     },
-  //       err => {
-  //         this.err.next(err)
-  //       });
-  // }
-
-
-  // signupUser(email: string, password: string) {
-  //   const authData: AuthData = { email: email, password: password };
-  //   this.http
-  //     .post(BACKEND_URL + "signup", authData)
-  //     .subscribe(response => {
-  //       this.err.next(null)
-  //       this.router.navigate(["/"]);
-
-  //     },
-  //       err => {
-  //         this.err.next(err)
-  //       });
-  // }
-
   login(email: string, password: string): Observable<any> {
   const authData: AuthData = { email: email, password: password };
   return this.http.post<{ token: string; expiresIn: number; userId: string }>(
@@ -166,13 +119,17 @@ resetPassword(token: string, password: string) {
     const now = new Date();
     const expiresIn = authInformation.expirationDate.getTime() - now.getTime();
 
+
     if (expiresIn > 0) {
       this.token = authInformation.token;
       this.isAuthenticated = true;
-      this.userId = authInformation.userId as string;
+      this.userId = authInformation.userId ?authInformation.userId : '';
       this.setAuthTimer(expiresIn / 1000);
       this.authStatusListener.next(true);
     }
+    else {
+    this.logout(); // Token has expired, so log out the user
+  }
   }
 
   private getAuthData() {
@@ -180,7 +137,7 @@ resetPassword(token: string, password: string) {
     const expirationDate = localStorage.getItem("expiration");
     const userId = localStorage.getItem("userId");
     if (!token || !expirationDate) {
-      return;
+      return null;
     }
     return {
       token: token,
@@ -198,13 +155,11 @@ resetPassword(token: string, password: string) {
     }, duration * 1000);
   }
  
-  private saveAuthData(token: string, expirationDate: Date, userId: string) {
-    console.log(token,expirationDate);
-    
-    this.profileService.getProfile()
-    localStorage.setItem("token", JSON.stringify(token));
-    localStorage.setItem("expiration", JSON.stringify(expirationDate.toISOString()));
-    localStorage.setItem("userId", JSON.stringify(userId));
+  private saveAuthData(token: string, expirationDate: Date, userId: string) {    
+    // this.profileService.getProfile()
+    localStorage.setItem("token", token);
+    localStorage.setItem("expiration",expirationDate.toISOString());
+    localStorage.setItem("userId", userId);
   }
 
 
@@ -218,3 +173,52 @@ resetPassword(token: string, password: string) {
   }
 
 }
+
+
+
+
+  // login(email: string, password: string) {
+  //   const authData: AuthData = { email: email, password: password };
+  //   this.http
+  //     .post<{ token: string; expiresIn: number, userId: string }>(
+  //       BACKEND_URL + "login",
+  //       authData
+  //     )
+  //     .subscribe(response => {
+
+  //       this.err.next(null)
+
+  //       const token = response.token;
+  //       this.token = token;
+  //       if (token) {
+  //         const expiresInDuration = response.expiresIn;
+  //         this.setAuthTimer(expiresInDuration);
+  //         this.isAuthenticated = true;
+  //         this.userId = response.userId;
+  //         this.authStatusListener.next(true);
+  //         const now = new Date();
+  //         const expirationDate = new Date(now.getTime() + expiresInDuration * 1000);
+
+  //         this.saveAuthData(token, expirationDate, this.userId);
+  //         this.router.navigate(["/"]);
+  //       }
+  //     },
+  //       err => {
+  //         this.err.next(err)
+  //       });
+  // }
+
+
+  // signupUser(email: string, password: string) {
+  //   const authData: AuthData = { email: email, password: password };
+  //   this.http
+  //     .post(BACKEND_URL + "signup", authData)
+  //     .subscribe(response => {
+  //       this.err.next(null)
+  //       this.router.navigate(["/"]);
+
+  //     },
+  //       err => {
+  //         this.err.next(err)
+  //       });
+  // }

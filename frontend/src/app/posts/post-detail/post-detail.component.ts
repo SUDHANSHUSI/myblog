@@ -6,6 +6,7 @@ import { ProfileService } from 'src/app/services/profile.service';
 import { AuthService } from '../../auth/auth.service';
 import { PostService } from '../../services/post.service';
 import { Post } from '../post.model';
+import { LikeService } from 'src/app/services/like.service';
 
 @Component({
   selector: 'app-post-detail',
@@ -19,18 +20,20 @@ export class PostDetailComponent implements OnInit, OnDestroy {
   error: any;
   postId!: string;
   post!: Post;
-  userId!: string;
+  userId!: string ;
   userIsAuthenticated!: boolean;
   private authStatusSub!: Subscription;
   profile: any;
-  postLiked: boolean = false;
+  comment: any;
+  isLiked: boolean = false;
 
   constructor(
     public postsService: PostService,
     public route: ActivatedRoute,
     public router: Router,
     private authService: AuthService,
-    public profileService: ProfileService
+    public profileService: ProfileService,
+    private likeService: LikeService
   ) {}
 
   ngOnInit(): void {
@@ -43,6 +46,7 @@ export class PostDetailComponent implements OnInit, OnDestroy {
       if (paramMap.has('postId')) {
         this.postId = paramMap.get('postId') ?? '';
         this.getPostById(this.postId);
+        this.isLiked = this.likeService.isPostLiked(this.postId);
       }
     });
   }
@@ -50,7 +54,6 @@ export class PostDetailComponent implements OnInit, OnDestroy {
   authData() {
     this.isAuth = this.authService.getIsAuth();
     this.userId = this.authService.getUserId();
-    this.userIsAuthenticated = this.isAuth;
     this.authStatusSub = this.authService
       .getAuthStatusListener()
       .subscribe((isAuthenticated) => {
@@ -78,6 +81,9 @@ export class PostDetailComponent implements OnInit, OnDestroy {
           imagePath: postData.imagePath,
           creator: postData.creator,
           postDate: postData.postDate,
+          likes: [],
+          comments: [],
+          likeCount: postData.likes.length,
         };
         this.getPostUserByCreatorId(postData.creator);
         this.isloading = false;
@@ -89,17 +95,22 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     );
   }
 
-  toggleLike(postId: string) {
-    this.postsService.toggleLike(postId, this.userId);
-     this.postLiked = !this.postLiked;
-  }
-
-  addComment(content: string) {
-    this.postsService.addComment(this.postId, content, this.userId);
-  }
-
   OnDelete(postId: string) {
     this.postsService.deletePost(postId);
+  }
+
+  onLike(postId: string) {
+    this.postsService.likePost(postId);
+    this.isLiked = !this.isLiked;
+    if (this.isLiked) {
+      this.likeService.addLikedPost(postId);
+    } else {
+      this.likeService.removeLikedPost(postId);
+    }
+  }
+
+  onAddComment(postId: string, comment: string) {
+    this.postsService.addComment(postId, comment);
   }
 
   getPostUserByCreatorId(id: string) {
