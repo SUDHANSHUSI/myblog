@@ -46,10 +46,19 @@ export class PostDetailComponent implements OnInit, OnDestroy {
       if (paramMap.has('postId')) {
         this.postId = paramMap.get('postId') ?? '';
         this.getPostById(this.postId);
+        this.initLikedPosts()
         this.isLiked = this.likeService.isPostLiked(this.postId);
       }
     });
   }
+
+  private async initLikedPosts() {
+    const likedPosts = await this.likeService.getLikedPosts();
+    this.isLiked = likedPosts.includes(this.postId);
+  }
+  
+  
+  
 
   authData() {
     this.isAuth = this.authService.getIsAuth();
@@ -82,7 +91,7 @@ export class PostDetailComponent implements OnInit, OnDestroy {
           creator: postData.creator,
           postDate: postData.postDate,
           likes: [],
-          comments: [],
+          comments: postData.comments,
           likeCount: postData.likes.length,
         };
         this.getPostUserByCreatorId(postData.creator);
@@ -100,17 +109,34 @@ export class PostDetailComponent implements OnInit, OnDestroy {
   }
 
   onLike(postId: string) {
-    this.postsService.likePost(postId);
-    this.isLiked = !this.isLiked;
-    if (this.isLiked) {
-      this.likeService.addLikedPost(postId);
-    } else {
-      this.likeService.removeLikedPost(postId);
-    }
+    this.postsService.likePost(postId).subscribe(
+      (responseData) => {
+        if (this.post) {
+          this.post.likes = responseData.success
+            ? this.post.likes.filter((userId: any) => userId !== responseData.message)
+            : [...this.post.likes, responseData.message];
+          this.post.likeCount = responseData.likeCount;
+          this.isLiked = responseData.success ? !this.isLiked : this.isLiked;
+        }
+              if (responseData.success) {
+        if (this.isLiked) {
+          this.likeService.addLikedPost(postId);
+        } else {
+          this.likeService.removeLikedPost(postId);
+        }
+      }
+    },
+      (error) => {
+        console.error(error);
+      }
+    );
   }
+  
+
 
   onAddComment(postId: string, comment: string) {
     this.postsService.addComment(postId, comment);
+    window.location.reload();
   }
 
   getPostUserByCreatorId(id: string) {
@@ -130,3 +156,27 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     this.authStatusSub.unsubscribe();
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // onLike(postId: string) {
+  //   this.postsService.likePost(postId);
+  //   this.isLiked = !this.isLiked;
+  //   if (this.isLiked) {
+  //     this.likeService.addLikedPost(postId);
+  //   } else {
+  //     this.likeService.removeLikedPost(postId);
+  //   }
+  // }

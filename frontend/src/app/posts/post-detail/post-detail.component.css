@@ -16,7 +16,7 @@
 }
 
 .modal-dialog {
-  max-width: 500px; /* Adjust the maximum width of the modal dialog */
+  max-width: 500px; /* Adjust the maximum width of the modal dialog */  
 }
 
 .modal-content {
@@ -51,22 +51,6 @@
   max-width: 100%;
   height: auto;
 }
-
-
-.like-icon {
-  position: relative;
-  color: black; /* Default color */
-}
-
-.like-icon.liked::before {
-  content: "\e87d"; /* Unicode of filled heart icon */
-  position: absolute;
-  top: 0;
-  left: 0;
-  color: red; /* Color when liked */
-}
-
-
 .mat-form-field {
   display: block;
   width: 100%;
@@ -119,4 +103,54 @@
   border-color: #adadad;
 }
 
+.like-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  padding: 0;
+}
 
+.like-icon {
+  font-size: 24px;
+  transition: color 0.3s ease;
+  color:black;
+}
+
+.like-icon.liked {
+  color: black;
+}
+
+
+/* Style for the comments section */
+.comments-section {
+  margin-top: 20px;
+}
+
+/* Style for the "Comments" heading */
+.comments-heading {
+  margin-bottom: 10px;
+}
+
+/* Style for the dropdown toggle link */
+.comments-toggle {
+  color: #333;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.comments-toggle:hover {
+  text-decoration: underline;
+}
+
+/* Style for the collapsed content */
+.comments-content {
+  margin-top: 10px;
+  display: flex;
+}
+
+/* Style for the expanded content */
+.comments-content.show {
+  display: inline-flexbox;
+}
+  

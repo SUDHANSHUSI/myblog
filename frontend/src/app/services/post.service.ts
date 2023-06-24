@@ -2,9 +2,11 @@ import { Injectable } from '@angular/core';
 import { Post } from '../posts/post.model';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Subject, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, of, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+import { ToastrService } from 'ngx-toastr';
+import { AuthService } from '../auth/auth.service';
 const BACKEND_URL = environment.apiUrl + '/posts';
 @Injectable({
   providedIn: 'root',
@@ -14,7 +16,12 @@ export class PostService {
 
   private postsUpdated = new Subject<Post[]>();
   public err = new BehaviorSubject<any>(null);
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private toastr: ToastrService,
+    private authService: AuthService
+  ) {}
 
   getPostUpdateListener() {
     return this.postsUpdated.asObservable();
@@ -156,6 +163,7 @@ export class PostService {
         this.posts = updatedPosts;
         this.postsUpdated.next([...this.posts]);
         this.router.navigate(['/']);
+        this.toastr.success('Post deleted successfully.', 'Success');
       },
       (e) => {
         this.err.next(e);
@@ -163,32 +171,25 @@ export class PostService {
     );
   }
 
-  likePost(postId: string) {
-    this.http
-      .get<{ success: boolean; message: string; likeCount: number }>(
-        `${BACKEND_URL}/${postId}/likes`
-      )
-      .subscribe(
-        (responseData) => {
-          const updatedPost = this.posts.find((post) => post.id === postId);
-          if (updatedPost) {
-            updatedPost.likes = responseData.success
-              ? updatedPost.likes.filter(
-                  (userId) => userId !== responseData.message
-                )
-              : [...updatedPost.likes, responseData.message];
-            updatedPost.likeCount = responseData.likeCount;
-            // window.location.reload();
-            this.postsUpdated.next([...this.posts]);
-          }
-        },
-        (error) => {
-          console.error(error);
-        }
-      );
+  likePost(
+    postId: string
+  ): Observable<{ success: boolean; message: string; likeCount: number }> {
+    if (!this.authService.getIsAuth()) {
+      this.toastr.warning('Please log in to like the post.', 'Login Required');
+      return this.http.get<{ success: boolean; message: string; likeCount: number }>(`${BACKEND_URL}/${postId}/likes`);
+    }
+    return this.http.get<{
+      success: boolean;
+      message: string;
+      likeCount: number;
+    }>(`${BACKEND_URL}/${postId}/likes`);
   }
 
   addComment(postId: string, comment: string) {
+     if (!this.authService.getIsAuth()) {
+      this.toastr.warning('Please log in to add a comment.', 'Login Required');
+      return;
+    }
     const commentData = { comment };
     this.http
       .post<{ success: boolean; message: string; comment: any }>(
@@ -209,3 +210,28 @@ export class PostService {
       );
   }
 }
+
+// likePost(postId: string) {
+//   this.http
+//     .get<{ success: boolean; message: string; likeCount: number }>(
+//       `${BACKEND_URL}/${postId}/likes`
+//     )
+//     .subscribe(
+//       (responseData) => {
+//         const updatedPost = this.posts.find((post) => post.id === postId);
+//         if (updatedPost) {
+//           updatedPost.likes = responseData.success
+//             ? updatedPost.likes.filter(
+//                 (userId) => userId !== responseData.message
+//               )
+//             : [...updatedPost.likes, responseData.message];
+//           updatedPost.likeCount = responseData.likeCount;
+//           // window.location.reload();
+//           this.postsUpdated.next([...this.posts]);
+//         }
+//       },
+//       (error) => {
+//         console.error(error);
+//       }
+//     );
+// }

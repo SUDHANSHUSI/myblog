@@ -100,10 +100,27 @@
 
         <p>{{ post.content }}</p>
         <div>
-          <button class="like-button" (click)="onLike(post.id)" >
-            <mat-icon class="like-icon" [class.liked]="isLiked">favorite_border</mat-icon>
+          <button class="like-button" (click)="onLike(post.id)">
+            <mat-icon class="like-icon" [ngClass]="{ liked: isLiked }"
+              >favorite_border</mat-icon
+            >
           </button>
+
           <span>{{ post.likeCount }}</span>
+        </div>
+        <br />
+
+        <!-- Display comments -->
+        <div *ngIf="post.comments.length > 0">
+
+          <h3><a data-toggle="collapse" href="#commentsCollapse" role="button"
+            >Comments:</a
+          ></h3>
+          <div id="commentsCollapse" class="collapse">
+            <ul>
+              <li *ngFor="let comment of post.comments">{{ comment.comment }}</li>
+            </ul>
+          </div>
         </div>
 
         <div>
@@ -111,7 +128,7 @@
             <mat-label>Add Comment</mat-label>
             <input matInput [(ngModel)]="comment" name="comment" />
           </mat-form-field>
-          <br>
+          <br />
           <button
             mat-raised-button
             color="primary"

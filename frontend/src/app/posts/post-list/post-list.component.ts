@@ -20,7 +20,7 @@ export class PostListComponent implements OnInit, OnDestroy {
   postbyUser: Profile[] = []
   isloading = false;
   error: any
-  userId!: string ;
+  userId!: string 
   private postsSub!: Subscription;
   constructor(private ps: PostService,
     private authService: AuthService,
